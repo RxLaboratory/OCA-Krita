@@ -1,2 +1,2 @@
 # DuKRIF_DuExportAnim
- Exports Animation keyfranes from Krita to a JSON format + PNG/EXR
+ Exports Animation keyframes from Krita to a JSON format + PNG/EXR

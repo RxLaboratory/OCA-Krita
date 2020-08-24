@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Service
+ServiceTypes=Krita/PythonPlugin
+X-KDE-Library=duexportanim
+X-Python-2-Compatible=false
+X-Krita-Manual=Manual.html
+Name=DuExportAnim
+Comment=Exports Animation keyfranes from Krita to a JSON format + PNG/EXR

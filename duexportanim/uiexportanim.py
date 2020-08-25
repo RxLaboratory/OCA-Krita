@@ -1,6 +1,7 @@
 # This script was made from export layers / GNU GPL v3
 
-from . import exportanimdialog
+from . import (exportanimdialog)
+from .dukrif import (DuKRIF_utils, DuKRIF_animation, DuKRIF_json)
 from PyQt5.QtCore import (Qt, QRect)
 from PyQt5.QtWidgets import (QFormLayout, QListWidget, QHBoxLayout,
                              QDialogButtonBox, QVBoxLayout, QFrame,
@@ -174,22 +175,17 @@ class UIExportAnim(object):
         self.mkdir('/' + fileName)
 
         # Collect doc info
-        self.docInfo = {}
-        self.docInfo['name'] = fileName
-        self.docInfo['frameRate'] = document.framesPerSecond()
-        self.docInfo['width'] = document.width()
-        self.docInfo['height'] = document.height()
-        if self.fullClipRadioButton.isChecked():
-            self.docInfo['startTime'] = document.fullClipRangeStartTime()
-            self.docInfo['endTime'] = document.fullClipRangeEndTime()
-        else:
+        self.docInfo = DuKRIF_json.getDocInfo(document)
+
+        print( self.docInfo )
+
+        if not self.fullClipRadioButton.isChecked():
             self.docInfo['startTime'] = document.playBackStartTime()
             self.docInfo['endTime'] = document.playBackEndTime()
+            
 
         self.progressdialog = QProgressDialog("Exporting animation...", "Cancel", 0, self.docInfo['endTime'] - self.docInfo['startTime'])
         self.progressdialog.setWindowModality(Qt.WindowModality.WindowModal)
-
-        self.docInfo['nodes'] = []
 
         if self.flattenImageCheckbox.isChecked():
             nodeInfo = self._exportFlattened(
@@ -217,11 +213,11 @@ class UIExportAnim(object):
     def _exportFlattened(self, document, fileFormat, parentDir):
         """ This method exports an flattened image of the document for each keyframe of the animation. """
 
-        nodeInfo = {}
-        nodeInfo['name'] = self.docInfo['name']
-        nodeInfo['frames'] = []
-        nodeInfo['childNodes'] = []
-        nodeInfo['type'] = 'imageLayer'
+        nodeInfo = DuKRIF_json.createNodeInfo( self.docInfo['name'])
+        nodeInfo['animated'] = True
+        nodeInfo['anchorPoint'] = [ self.docInfo['width'] / 2, self.docInfo['height'] / 2 ]
+        nodeInfo['width'] = self.docInfo['width']
+        nodeInfo['height'] = self.docInfo['height']
 
         frame = self.docInfo['startTime']
 
@@ -229,7 +225,7 @@ class UIExportAnim(object):
             self.progressdialog.setValue(frame)
             if (self.progressdialog.wasCanceled()):
                 break
-            if self._hasKeyframeAtTime(document.rootNode(), frame):
+            if DuKRIF_animation.hasKeyframeAtTime(document.rootNode(), frame):
                 frameInfo = self._exportFlattenedFrame(document, fileFormat, frame, parentDir)
                 nodeInfo['frames'].append(frameInfo)
             frame = frame + 1
@@ -240,7 +236,7 @@ class UIExportAnim(object):
 
         document.setCurrentTime(frameNumber)
 
-        imageName = '{0}_{1}'.format( self.docInfo['name'], self._intToStr(frameNumber))
+        imageName = '{0}_{1}'.format( self.docInfo['name'], DuKRIF_utils.intToStr(frameNumber))
         imagePath = '{0}/{1}.{2}'.format( parentDir, imageName, fileFormat)
         imageFileName = '{0}/{1}'.format( self.directoryTextField.text(), imagePath)
 
@@ -257,20 +253,6 @@ class UIExportAnim(object):
         frameInfo['fileName'] = imagePath
         frameInfo['frameNumber'] = frameNumber
         return frameInfo
-
-    def _hasKeyframeAtTime(self, parentNode, frameNumber):
-        if parentNode.hasKeyframeAtTime(frameNumber):
-            return True
-        for node in parentNode.childNodes():
-            if self._hasKeyframeAtTime(node, frameNumber):
-                return True
-        return False
-
-    def _intToStr(self, i, numCharacters = 5):
-        s = str(i)
-        while len(s) < numCharacters:
-            s = "0" + s
-        return s
 
     def _selectDir(self):
         directory = QFileDialog.getExistingDirectory(
@@ -299,5 +281,5 @@ class UIExportAnim(object):
 
         if flatten:
             self.exportFilterLayersCheckBox.setChecked(True)
-            self.ignoreInvisibleLayersCheckBox.setChecked(False)
+            self.ignoreInvisibleLayersCheckBox.setChecked(True)
             self.cropToImageBounds.setChecked(False)

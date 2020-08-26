@@ -1,21 +1,41 @@
-# This script was made from export layers / GNU GPL v3
+# DuExportAnim - Duduf Export Animation for Krita
+# Copyright (c) 2020 - Nicolas Dufresne, Rainbox Laboratory
+# This script is licensed under the GNU General Public License v3
+# https://rainboxlab.org
+# 
+# DuExportAnim was made using "Export Layers" for Krita, which is licensed CC 0 1.0  - public domain
+#
+# This file is part of DuExportAnim.
+#   DuExportAnim is free software: you can redistribute it and/or modify
+#    it under the terms of the GNU General Public License as published by
+#    the Free Software Foundation, either version 3 of the License, or
+#    (at your option) any later version.
+#
+#    DuExportAnim is distributed in the hope that it will be useful,
+#    but WITHOUT ANY WARRANTY; without even the implied warranty of
+#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#    GNU General Public License for more details.
+#
+#    You should have received a copy of the GNU General Public License
+#    along with DuExportAnim. If not, see <http://www.gnu.org/licenses/>.
 
 from . import (exportanimdialog)
-from .dukrif import (DuKRIF_utils, DuKRIF_animation, DuKRIF_json)
-from PyQt5.QtCore import (Qt, QRect)
-from PyQt5.QtWidgets import (QFormLayout, QListWidget, QHBoxLayout,
+from .dukrif import (DuKRIF_utils, DuKRIF_animation, DuKRIF_json, DuKRIF_io)
+from PyQt5.QtCore import (Qt, QRect) # pylint: disable=no-name-in-module
+from PyQt5.QtWidgets import (QFormLayout, QListWidget, QHBoxLayout, # pylint: disable=no-name-in-module
                              QDialogButtonBox, QVBoxLayout, QFrame,
                              QPushButton, QAbstractScrollArea, QLineEdit,
                              QMessageBox, QFileDialog, QCheckBox, QSpinBox,
                              QComboBox, QRadioButton, QProgressDialog)
 import os
 import json
-import time
-import krita
+import krita # pylint: disable=import-error
 
 class UIExportAnim(object):
 
     def __init__(self):
+        self.version = "1.0.0"
+
         self.mainDialog = exportanimdialog.ExportAnimDialog()
         self.mainLayout = QVBoxLayout(self.mainDialog)
         self.formLayout = QFormLayout()
@@ -26,28 +46,22 @@ class UIExportAnim(object):
         self.rectSizeLayout = QHBoxLayout()
         self.timeRangeLayout = QVBoxLayout()
 
-        self.refreshButton = QPushButton(i18n("Refresh"))
+        self.refreshButton = QPushButton(i18n("Refresh")) # pylint: disable=undefined-variable
         self.widgetDocuments = QListWidget()
         self.directoryTextField = QLineEdit()
-        self.directoryDialogButton = QPushButton(i18n("..."))
-        self.flattenImageCheckbox = QCheckBox(
-            i18n("Flatten image"))
-        self.exportFilterLayersCheckBox = QCheckBox(
-            i18n("Export filter layers"))
-        self.ignoreInvisibleLayersCheckBox = QCheckBox(
-            i18n("Ignore invisible layers"))
-        self.cropToImageBounds = QCheckBox(
-            i18n("Adjust export size to layer content"))
+        self.directoryDialogButton = QPushButton(i18n("...")) # pylint: disable=undefined-variable
+        self.flattenImageCheckbox = QCheckBox(i18n("Flatten image")) # pylint: disable=undefined-variable
+        self.exportFilterLayersCheckBox = QCheckBox(i18n("Export filter layers")) # pylint: disable=undefined-variable
+        self.ignoreInvisibleLayersCheckBox = QCheckBox(i18n("Ignore invisible layers")) # pylint: disable=undefined-variable
+        self.cropToImageBounds = QCheckBox(i18n("Adjust export size to layer content")) # pylint: disable=undefined-variable
 
         self.rectWidthSpinBox = QSpinBox()
         self.rectHeightSpinBox = QSpinBox()
         #self.formatsComboBox = QComboBox()
         self.resSpinBox = QSpinBox()
 
-        self.fullClipRadioButton = QRadioButton(
-            i18n("Full clip"))
-        self.currentSelectionRadioButton = QRadioButton(
-            i18n("Selected range"))
+        self.fullClipRadioButton = QRadioButton(i18n("Full clip")) # pylint: disable=undefined-variable
+        self.currentSelectionRadioButton = QRadioButton(i18n("Selected range")) # pylint: disable=undefined-variable
 
         self.buttonBox = QDialogButtonBox(
             QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
@@ -90,8 +104,9 @@ class UIExportAnim(object):
         self.optionsLayout.addWidget(self.exportFilterLayersCheckBox)
         self.optionsLayout.addWidget(self.ignoreInvisibleLayersCheckBox)
         self.optionsLayout.addWidget(self.cropToImageBounds)
+        self.ignoreInvisibleLayersCheckBox.setChecked(True)
 
-        self.resSpinBoxLayout.addRow(i18n("dpi:"), self.resSpinBox)
+        self.resSpinBoxLayout.addRow(i18n("dpi:"), self.resSpinBox) # pylint: disable=undefined-variable
 
         self.rectSizeLayout.addWidget(self.rectWidthSpinBox)
         self.rectSizeLayout.addWidget(self.rectHeightSpinBox)
@@ -101,14 +116,13 @@ class UIExportAnim(object):
         self.timeRangeLayout.addWidget(self.currentSelectionRadioButton)
         self.fullClipRadioButton.setChecked(True)
 
-        self.formLayout.addRow(i18n("Documents:"), self.documentLayout)
-        self.formLayout.addRow(
-            i18n("Initial directory:"), self.directorySelectorLayout)
-        self.formLayout.addRow(i18n("Export options:"), self.optionsLayout)
-        self.formLayout.addRow(i18n("Export size:"), self.rectSizeLayout)
+        self.formLayout.addRow(i18n("Documents:"), self.documentLayout) # pylint: disable=undefined-variable
+        self.formLayout.addRow(i18n("Initial directory:"), self.directorySelectorLayout) # pylint: disable=undefined-variable
+        self.formLayout.addRow(i18n("Export options:"), self.optionsLayout) # pylint: disable=undefined-variable
+        self.formLayout.addRow(i18n("Export size:"), self.rectSizeLayout) # pylint: disable=undefined-variable
         #self.formLayout.addRow(
         #    i18n("Images extensions:"), self.formatsComboBox)
-        self.formLayout.addRow(i18n("Time range:"), self.timeRangeLayout)
+        self.formLayout.addRow(i18n("Time range:"), self.timeRangeLayout) # pylint: disable=undefined-variable
 
         self.line = QFrame()
         self.line.setFrameShape(QFrame.HLine)
@@ -119,7 +133,7 @@ class UIExportAnim(object):
         self.mainLayout.addWidget(self.buttonBox)
 
         self.mainDialog.resize(500, 300)
-        self.mainDialog.setWindowTitle(i18n("Export Animation"))
+        self.mainDialog.setWindowTitle(i18n("Export Animation") + " v" + self.version) # pylint: disable=undefined-variable
         self.mainDialog.setSizeGripEnabled(True)
         self.mainDialog.show()
         self.mainDialog.activateWindow()
@@ -148,16 +162,16 @@ class UIExportAnim(object):
 
         self.msgBox = QMessageBox(self.mainDialog)
         if not selectedDocuments:
-            self.msgBox.setText(i18n("Select one document."))
+            self.msgBox.setText(i18n("Select one document.")) # pylint: disable=undefined-variable
         elif not self.directoryTextField.text():
-            self.msgBox.setText(i18n("Select the initial directory."))
+            self.msgBox.setText(i18n("Select the initial directory.")) # pylint: disable=undefined-variable
         else:
             self.export(selectedDocuments[0])
-            self.msgBox.setText(i18n("All layers has been exported."))
+            self.msgBox.setText(i18n("All layers has been exported.")) # pylint: disable=undefined-variable
         self.msgBox.exec_()
 
     def mkdir(self, directory):
-        target_directory = self.directoryTextField.text() + directory
+        target_directory = self.directoryTextField.text() + '/' +  directory
         if (os.path.exists(target_directory)
                 and os.path.isdir(target_directory)):
             return
@@ -168,16 +182,15 @@ class UIExportAnim(object):
             raise e
 
     def export(self, document):
+        Application.setBatchmode(True) # pylint: disable=undefined-variable
         document.setBatchmode(True)
 
         documentName = document.fileName() if document.fileName() else 'Untitled'  # noqa: E501
-        fileName, extension = os.path.splitext(os.path.basename(documentName))
-        self.mkdir('/' + fileName)
+        fileName, extension = os.path.splitext(os.path.basename(documentName)) # pylint: disable=unused-variable
+        self.mkdir(fileName)
 
         # Collect doc info
         self.docInfo = DuKRIF_json.getDocInfo(document)
-
-        print( self.docInfo )
 
         if not self.fullClipRadioButton.isChecked():
             self.docInfo['startTime'] = document.playBackStartTime()
@@ -196,18 +209,23 @@ class UIExportAnim(object):
             )
             self.docInfo['nodes'].append(nodeInfo)
         else:
-            pass
-            #self._exportLayers(
-            #    document.rootNode(),
-            #    self.formatsComboBox.currentText(),
-            #    'PNG',
-            #   '/' + fileName)
+            nodes = self._exportLayers(
+                document,
+                document.rootNode(),
+                #self.formatsComboBox.currentText(),
+                'png',
+                fileName
+            )
+            self.docInfo['nodes'] = nodes
 
         # Write doc info
         infoFile = open('{0}/{1}.json'.format(self.directoryTextField.text(), fileName),  "w")
         infoFile.write( json.dumps(self.docInfo, indent=4) )
         infoFile.close()
 
+        self.progressdialog.close()
+
+        Application.setBatchmode(False) # pylint: disable=undefined-variable
         document.setBatchmode(False)
 
     def _exportFlattened(self, document, fileFormat, parentDir):
@@ -215,7 +233,7 @@ class UIExportAnim(object):
 
         nodeInfo = DuKRIF_json.createNodeInfo( self.docInfo['name'])
         nodeInfo['animated'] = True
-        nodeInfo['anchorPoint'] = [ self.docInfo['width'] / 2, self.docInfo['height'] / 2 ]
+        nodeInfo['position'] = [ self.docInfo['width'] / 2, self.docInfo['height'] / 2 ]
         nodeInfo['width'] = self.docInfo['width']
         nodeInfo['height'] = self.docInfo['height']
 
@@ -232,32 +250,120 @@ class UIExportAnim(object):
 
         return nodeInfo
 
-    def _exportFlattenedFrame(self, document, fileFormat, frameNumber, parentDir, numTries = 0):
+    def _exportFlattenedFrame(self, document, fileFormat, frameNumber, parentDir):
 
-        document.setCurrentTime(frameNumber)
+        DuKRIF_animation.setCurrentFrame(document, frameNumber)
 
         imageName = '{0}_{1}'.format( self.docInfo['name'], DuKRIF_utils.intToStr(frameNumber))
         imagePath = '{0}/{1}.{2}'.format( parentDir, imageName, fileFormat)
+        imageFileName = '{0}/{1}'.format( self.directoryTextField.text(), imagePath)   
+
+        succeed = DuKRIF_io.exportDocument(document, imageFileName)
+        
+        if not succeed:
+            frameInfo = DuKRIF_json.createKeyframeInfo("Export failed", "", frameNumber)
+            return frameInfo
+        
+        frameInfo = DuKRIF_json.createKeyframeInfo(imageName, imagePath, frameNumber)
+        frameInfo['position'] = [ self.docInfo['width'] / 2, self.docInfo['height'] / 2 ]
+        frameInfo['width'] = self.docInfo['width']
+        frameInfo['height'] = self.docInfo['height']
+            
+        return frameInfo
+
+    def _exportLayers(self, document, parentNode, fileFormat, parentDir):
+        """ This method get all sub-nodes from the current node and export them in
+            the defined format."""
+
+        nodes = []
+
+        for node in parentNode.childNodes():
+            newDir = ''
+            if (not self.exportFilterLayersCheckBox.isChecked()
+                  and 'filter' in node.type()):
+                continue
+            elif (self.ignoreInvisibleLayersCheckBox.isChecked()
+                  and not node.visible()):
+                continue
+
+            nodeInfo = DuKRIF_json.getNodeInfo(document, node)
+
+            if node.type() == 'grouplayer':
+                newDir = os.path.join(parentDir, node.name())
+                self.mkdir(newDir)
+            else:
+                nodeName = node.name()
+
+                self.progressdialog.setLabelText(i18n("Exporting") + " " + node.name()) # pylint: disable=undefined-variable
+
+                _fileFormat = fileFormat
+                if '[jpeg]' in nodeName:
+                    _fileFormat = 'jpeg'
+                elif '[png]' in nodeName:
+                    _fileFormat = 'png'
+                elif '[exr]' in nodeName:
+                    _fileFormat = 'exr'
+
+                frame = self.docInfo['startTime']
+
+                if node.animated():
+                    nodeDir = parentDir + '/' + node.name()
+                    self.mkdir(nodeDir)
+                    while frame <= self.docInfo['endTime']:
+                        self.progressdialog.setValue(frame)
+                        if (self.progressdialog.wasCanceled()):
+                            break
+                        if node.hasKeyframeAtTime(frame):
+                            frameInfo = self._exportNodeFrame(document, node, _fileFormat, frame, nodeDir)
+                            nodeInfo['frames'].append(frameInfo)
+                        frame = frame + 1
+                else:
+                    frameInfo = self._exportNodeFrame(document, node, _fileFormat, frame, parentDir)
+                    nodeInfo['frames'].append(frameInfo)
+
+            if node.childNodes():
+                childNodes = self._exportLayers(document, node, fileFormat, newDir)
+                nodeInfo['childNodes'] = childNodes
+
+            nodes.append(nodeInfo)
+
+        return nodes
+
+    def _exportNodeFrame(self, document, node, fileFormat, frameNumber, parentDir):
+
+        DuKRIF_animation.setCurrentFrame(document, frameNumber)
+
+        if node.bounds().width() == 0:
+            frameInfo = DuKRIF_json.createKeyframeInfo("_blank", "", frameNumber)
+            return frameInfo
+
+        imageName = '{0}_{1}'.format( node.name(), DuKRIF_utils.intToStr(frameNumber))
+        imagePath = '{0}/{1}.{2}'.format( parentDir, imageName, fileFormat)
         imageFileName = '{0}/{1}'.format( self.directoryTextField.text(), imagePath)
 
-        succeed = document.exportImage(imageFileName, krita.InfoObject())
-        frameInfo = {}
-        if not succeed:
-            if numTries > 5:
-                frameInfo['name'] = "Export Failed"
-                return frameInfo
-            time.sleep(1)
-            self._exportFlattenedFrame(document, fileFormat, frameNumber, parentDir, numTries+1)
-            
-        frameInfo['name'] = imageName
+        if self.cropToImageBounds.isChecked():
+            bounds = QRect()
+        else:
+            bounds = QRect(0, 0, self.rectWidthSpinBox.value(), self.rectHeightSpinBox.value())
+
+        opacity = node.opacity()
+        node.setOpacity(255)
+
+        node.save(imageFileName, self.resSpinBox.value() / 72., self.resSpinBox.value() / 72., krita.InfoObject(), bounds)
+
+        node.setOpacity(opacity)
+
+        # TODO check if the file was correctly exported. The Node.save() method always reports False :/
+
+        frameInfo = DuKRIF_json.getKeyframeInfo(document, node, frameNumber, not self.cropToImageBounds.isChecked())
         frameInfo['fileName'] = imagePath
-        frameInfo['frameNumber'] = frameNumber
+
         return frameInfo
 
     def _selectDir(self):
         directory = QFileDialog.getExistingDirectory(
             self.mainDialog,
-            i18n("Select a Folder"),
+            i18n("Select a Folder"), # pylint: disable=undefined-variable
             os.path.expanduser("~"),
             QFileDialog.ShowDirsOnly)
         self.directoryTextField.setText(directory)

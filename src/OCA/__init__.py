@@ -20,22 +20,6 @@
 #    along with DuExportAnim. If not, see <http://www.gnu.org/licenses/>.
 
 import krita # pylint: disable=import-error
-from . import uiexportanim
+from .oca import OCAExport
 
-
-class ExportAnimExtension(krita.Extension):
-
-    def __init__(self, parent):
-        super(ExportAnimExtension, self).__init__(parent)
-
-    def setup(self):
-        pass
-
-    def createActions(self, window):
-        action = window.createAction("export_anim", i18n("Export Animation")) # pylint: disable=undefined-variable
-        action.setToolTip(i18n("Export animation keyframes from a document.")) # pylint: disable=undefined-variable
-        action.triggered.connect(self.initialize)
-
-    def initialize(self):
-        self.uiexportanim = uiexportanim.UIExportAnim()
-        self.uiexportanim.initialize()
+Scripter.addExtension(OCAExport(krita.Krita.instance())) # pylint: disable=undefined-variable

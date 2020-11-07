@@ -133,7 +133,7 @@ class UIExportAnim(object):
         self.mainLayout.addWidget(self.buttonBox)
 
         self.mainDialog.resize(500, 300)
-        self.mainDialog.setWindowTitle(i18n("Export Animation") + " v" + self.version) # pylint: disable=undefined-variable
+        self.mainDialog.setWindowTitle(i18n("OCA Export ") + " v" + self.version) # pylint: disable=undefined-variable
         self.mainDialog.setSizeGripEnabled(True)
         self.mainDialog.show()
         self.mainDialog.activateWindow()

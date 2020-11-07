@@ -3,10 +3,6 @@ Exports Animation keyframes from Krita to [OCA](https://github.com/Rainbox-dev/O
 
 This format can then be imported in After Effects (using [*DuIO*](https://rainboxlab.org/tools/duio/) for example) or any other software with just a little bit of development.
 
-## WIP
-
-The development of this plugin has just started and not everything is implemented yet, but a first version should be available in a couple of weeks.
-
 ## Install
 
 This plugin is installed the same way as other Krita plugins.

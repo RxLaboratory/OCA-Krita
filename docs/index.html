@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="The OCA for Krita comprehensive documentation">
+  <meta name="author" content="Nicolas Dufresne and contributors">
+  <link rel="shortcut icon" href="img/favicon.ico">
+  <title>OCA for Krita - OCA for Krita<br />Documentation<br />v1.0.0</title>
+  <link rel="stylesheet" href="css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+  <link href="style.css" rel="stylesheet">
+  <link href="video.css" rel="stylesheet">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "OCA for Krita";
+    var mkdocs_page_input_path = "index.md";
+    var mkdocs_page_url = "/index.html";
+  </script>
+  
+  <script src="js/jquery-2.1.1.min.js" defer></script>
+  <script src="js/modernizr-2.8.3.min.js" defer></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="index.html" class="icon icon-home"> OCA for Krita<br />Documentation<br />v1.0.0</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="index.html">OCA for Krita</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#oca-for-krita">OCA for Krita</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#features">Features</a></li>
+        
+            <li><a class="toctree-l3" href="#how-to-install-oca-for-krita">How to install OCA for Krita</a></li>
+        
+            <li><a class="toctree-l3" href="#license">License</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="changelog.html">Changelog</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <span class="caption-text">License</span>
+    <ul class="subnav">
+                <li class="">
+                    
+    <a class="" href="licenses/gnu-gpl.html">GNU GPLv3</a>
+                </li>
+                <li class="">
+                    
+    <a class="" href="licenses/gfdl.html">Documentation license</a>
+                </li>
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="https://rainboxlab.org/about/contact/">Contact</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="https://rainboxlab.org/about/donate/">Donate</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">OCA for Krita<br />Documentation<br />v1.0.0</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>OCA for Krita</li>
+    <li class="wy-breadcrumbs-aside">
+      
+        <a href="https://github.com/Rainbox-dev/DuKRIF_OCA/tree/master/src-docs/docs/index.md"> Edit on Oca-Krita-Docs</a>
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="oca-for-krita">OCA for Krita</h1>
+<p><a href="https://github.com/Rainbox-dev/OCA"><em>OCA</em>, the Open Cel Animation format</a> is an open format to ease the exchange of traditionnal/frame-by-frame/cel animation between different applications.</p>
+<p>It is able to export all animation keyframes from a Krita document, keeping the layer structure, blending modes, and a lot of other information. This <em>OCA</em> format can then be imported in another application like <em>Adobe After Effects</em> or <a href="http://blender.org"><em>Blender</em></a>.</p>
+<p>The documentation about <em>OCA</em> is available on <a href="http://oca-docs.rainboxlab.org">oca-docs.rainboxlab.org</a>.</p>
+<p>This is the <em>OCA</em> exporter for Krita.</p>
+<p><img alt="" src="img/oca-krita.png" /></p>
+<h2 id="features">Features</h2>
+<p>This <em>OCA</em> exporter will export the most common features of all drawing/animation software:</p>
+<ul>
+<li>Exports the layers or the flattened image</li>
+<li>Layer Groups (and pass through mode if any)</li>
+<li>Layer Labels</li>
+<li>Layer Visibility</li>
+<li>Keyframes and their duration (animation exposure)</li>
+<li>Opacity Keyframes</li>
+<li>Blending Modes</li>
+<li>Layer Sizes and Coordinates</li>
+<li>Document background color</li>
+<li>Document color depth</li>
+</ul>
+<h2 id="how-to-install-oca-for-krita">How to install OCA for Krita</h2>
+<p>This plugin is installed the same way as other Krita plugins.</p>
+<h3 id="using-the-plugin-importer">Using the plugin importer</h3>
+<p>First, if you&rsquo;re using the source code instead of a zipped release, you&rsquo;ll have to zip all the files and folders in the <a href="src/">src</a> subfolder (the <em>OCA.desktop</em> file and the <em>OCA</em> folder).</p>
+<ol>
+<li>Open the Script Importer plugin in Krita via <code>Tools ‣ Scripts ‣ Import Python Plugin...</code></li>
+<li>Locate and import the <em>OCA.zip</em> file.</li>
+<li>Restart Krita</li>
+<li>Go to <code>Settings ‣ Configure Krita...</code></li>
+<li>In the <code>Python Plugin Manager</code> tab, enable the <em>OCA</em> plugin</li>
+<li>Restart Krita</li>
+</ol>
+<h3 id="manually">Manually</h3>
+<ol>
+<li>Copy (or symlink if you&rsquo;re developping) both the <em>OCA.desktop</em> file and the <em>OCA</em> folder to the <em>pykrita</em> subfolder of the Krita resources folder.</li>
+<li>Start Krita</li>
+<li>Go to <code>Settings ‣ Configure Krita...</code></li>
+<li>In the <code>Python Plugin Manager</code> tab, enable the <em>OCA</em> plugin</li>
+<li>Restart Krita</li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To find your resources folder, start Krita and click the <code>Settings ‣ Manage Resources…</code> menu item. This will open a dialog box. Click the <code>Open Resources Folder</code> button.</p>
+</div>
+<h2 id="license">License</h2>
+<h3 id="software">Software</h3>
+<p><strong>Copyright (C)  2020 Nicolas Dufresne and Contributors.</strong><br />
+This program is free software; you can redistribute them and/or modify them under the terms of the GNU General Public License as published by the Free Software Foundation; either version 3 of the License, or (at your option) any later version.</p>
+<p>This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.</p>
+<p>You should have received a copy of the <em>GNU General Public License</em> along with <em>DuBuilder</em>. If not, see <a href="http://www.gnu.org/licenses/">http://www.gnu.org/licenses/</a>.</p>
+<h3 id="this-documentation">This Documentation</h3>
+<p><strong>Copyright (C)  2020 Nicolas Dufresne and Contributors.</strong><br />
+Permission is granted to copy, distribute and/or modify this document under the terms of the GNU Free Documentation License, Version 1.3 or any later version published by the Free Software Foundation;<br />
+with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+A copy of the license is included in the section entitled &ldquo;<a href="licenses/gfdl.html">Documentation License</a>&rdquo;.</p>
+<p><img alt="GNU" src="img/gnu.png" /> <img alt="GFDL" src="img/gfdl-logo.png" /></p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="changelog.html" class="btn btn-neutral float-right" title="Changelog">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+      <p>Copyright © 2020 Rainbox Laboratory and Nicolas Dufresne</p>
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+      
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+      
+        <span style="margin-left: 15px"><a href="changelog.html" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script>var base_url = '.';</script>
+    <script src="js/theme.js" defer></script>
+      <script src="video.js" defer></script>
+      <script src="search/main.js" defer></script>
+
+</body>
+</html>
+
+<!--
+MkDocs version : 1.0.4
+Build Date UTC : 2020-11-07 16:26:39
+-->

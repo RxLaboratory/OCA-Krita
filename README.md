@@ -1,5 +1,5 @@
-# DuExportAnim
- Exports Animation keyframes from Krita to a *JSON* format + *PNG*/*EXR*
+# OCA - Open Cel Animation format for Krita
+ Exports Animation keyframes from Krita OCA, a *JSON* format + *PNG*/*EXR*
  
  This format can then be imported in After Effects (using [*DuIO*](https://rainboxlab.org/tools/duio/) for example) or any other software with just a little bit of development.
  

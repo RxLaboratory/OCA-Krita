@@ -1,26 +1,17 @@
 # OCA - Open Cel Animation format for Krita
- Exports Animation keyframes from Krita OCA, a *JSON* format + *PNG*/*EXR*
- 
- This format can then be imported in After Effects (using [*DuIO*](https://rainboxlab.org/tools/duio/) for example) or any other software with just a little bit of development.
- 
- ## WIP
- 
- The development of this plugin has just started and not everything is implemented yet, but a first version should be available in a couple of weeks.
- 
- ## Features
- 
- - Layers
- - Layer groups
- - Layer color labels
- - Layer visibility
- - Keyframes / Animation exposure
- - Blending Modes
- - Layer sizes and coordinates
- - Opacity and opacity keyframes
- - Document background color
- - Document color depth
- 
- All these properties are stored in the *JSON* file, and the images are stored in *PNG* or *EXR* images.
+Exports Animation keyframes from Krita to [OCA](), a *JSON* format + *PNG*/*EXR*
+
+This format can then be imported in After Effects (using [*DuIO*](https://rainboxlab.org/tools/duio/) for example) or any other software with just a little bit of development.
+
+## WIP
+
+The development of this plugin has just started and not everything is implemented yet, but a first version should be available in a couple of weeks.
+
+## Features
+
+See the [OCA]() format specifications.
+
+Note that vector layers are not supported by *OCA* for Krita (yet).
 
 ## Development
 

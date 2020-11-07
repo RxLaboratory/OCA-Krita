@@ -117,7 +117,7 @@ class UIExportAnim(object):
         self.fullClipRadioButton.setChecked(True)
 
         self.formLayout.addRow(i18n("Documents:"), self.documentLayout) # pylint: disable=undefined-variable
-        self.formLayout.addRow(i18n("Initial directory:"), self.directorySelectorLayout) # pylint: disable=undefined-variable
+        self.formLayout.addRow(i18n("Destination:"), self.directorySelectorLayout) # pylint: disable=undefined-variable
         self.formLayout.addRow(i18n("Export options:"), self.optionsLayout) # pylint: disable=undefined-variable
         self.formLayout.addRow(i18n("Export size:"), self.rectSizeLayout) # pylint: disable=undefined-variable
         #self.formLayout.addRow(
@@ -171,7 +171,7 @@ class UIExportAnim(object):
         self.msgBox.exec_()
 
     def mkdir(self, directory):
-        target_directory = self.directoryTextField.text() + '/' +  directory
+        target_directory = self.getPath(directory)
         if (os.path.exists(target_directory)
                 and os.path.isdir(target_directory)):
             return
@@ -181,16 +181,22 @@ class UIExportAnim(object):
         except OSError as e:
             raise e
 
+    def getPath(self, directory):
+        return self.directoryTextField.text() + '/' +  directory
+
     def export(self, document):
         Application.setBatchmode(True) # pylint: disable=undefined-variable
         document.setBatchmode(True)
 
         documentName = document.fileName() if document.fileName() else 'Untitled'  # noqa: E501
         fileName, extension = os.path.splitext(os.path.basename(documentName)) # pylint: disable=unused-variable
-        self.mkdir(fileName)
+        rootDir = fileName + '.oca'
+        self.mkdir(rootDir)
 
         # Collect doc info
         self.docInfo = DuKRIF_json.getDocInfo(document)
+        documentDir = rootDir + '/' + self.docInfo['name']
+        self.mkdir(documentDir)
 
         if not self.fullClipRadioButton.isChecked():
             self.docInfo['startTime'] = document.playBackStartTime()
@@ -205,21 +211,21 @@ class UIExportAnim(object):
                 document,
                 #self.formatsComboBox.currentText(),
                 'png',
-                fileName
+                documentDir
             )
-            self.docInfo['nodes'].append(nodeInfo)
+            self.docInfo['layers'].append(nodeInfo)
         else:
             nodes = self._exportLayers(
                 document,
                 document.rootNode(),
                 #self.formatsComboBox.currentText(),
                 'png',
-                fileName
+                documentDir
             )
-            self.docInfo['nodes'] = nodes
+            self.docInfo['layers'] = nodes
 
         # Write doc info
-        infoFile = open('{0}/{1}.json'.format(self.directoryTextField.text(), fileName),  "w")
+        infoFile = open('{0}/{1}.json'.format(self.getPath(rootDir), fileName),  "w")
         infoFile.write( json.dumps(self.docInfo, indent=4) )
         infoFile.close()
 
@@ -232,12 +238,14 @@ class UIExportAnim(object):
         """ This method exports an flattened image of the document for each keyframe of the animation. """
 
         nodeInfo = DuKRIF_json.createNodeInfo( self.docInfo['name'])
+        nodeInfo['fileType'] = fileFormat
         nodeInfo['animated'] = True
         nodeInfo['position'] = [ self.docInfo['width'] / 2, self.docInfo['height'] / 2 ]
         nodeInfo['width'] = self.docInfo['width']
         nodeInfo['height'] = self.docInfo['height']
 
         frame = self.docInfo['startTime']
+        prevFrameNumber = -1
 
         while frame <= self.docInfo['endTime']:
             self.progressdialog.setValue(frame)
@@ -245,7 +253,10 @@ class UIExportAnim(object):
                 break
             if DuKRIF_animation.hasKeyframeAtTime(document.rootNode(), frame):
                 frameInfo = self._exportFlattenedFrame(document, fileFormat, frame, parentDir)
+                if prevFrameNumber >= 0:
+                    nodeInfo['frames'][-1]['duration'] = frame - prevFrameNumber
                 nodeInfo['frames'].append(frameInfo)
+                prevFrameNumber = frame
             frame = frame + 1
 
         return nodeInfo
@@ -287,6 +298,7 @@ class UIExportAnim(object):
                 continue
 
             nodeInfo = DuKRIF_json.getNodeInfo(document, node)
+            nodeInfo['fileType'] = fileFormat
 
             if node.type() == 'grouplayer':
                 newDir = os.path.join(parentDir, node.name())
@@ -308,6 +320,7 @@ class UIExportAnim(object):
 
                 if node.animated():
                     nodeDir = parentDir + '/' + node.name()
+                    prevFrameNumber = -1
                     self.mkdir(nodeDir)
                     while frame <= self.docInfo['endTime']:
                         self.progressdialog.setValue(frame)
@@ -315,15 +328,19 @@ class UIExportAnim(object):
                             break
                         if node.hasKeyframeAtTime(frame):
                             frameInfo = self._exportNodeFrame(document, node, _fileFormat, frame, nodeDir)
+                            if prevFrameNumber >= 0:
+                                nodeInfo['frames'][-1]['duration'] = frame - prevFrameNumber
                             nodeInfo['frames'].append(frameInfo)
+                            prevFrameNumber = frame
                         frame = frame + 1
                 else:
                     frameInfo = self._exportNodeFrame(document, node, _fileFormat, frame, parentDir)
+                    frameInfo['duration'] = document.playBackEndTime() - document.playBackStartTime()
                     nodeInfo['frames'].append(frameInfo)
 
             if node.childNodes():
                 childNodes = self._exportLayers(document, node, fileFormat, newDir)
-                nodeInfo['childNodes'] = childNodes
+                nodeInfo['childLayers'] = childNodes
 
             nodes.append(nodeInfo)
 
@@ -352,7 +369,7 @@ class UIExportAnim(object):
         node.save(imageFileName, self.resSpinBox.value() / 72., self.resSpinBox.value() / 72., krita.InfoObject(), bounds)
 
         node.setOpacity(opacity)
-
+        
         # TODO check if the file was correctly exported. The Node.save() method always reports False :/
 
         frameInfo = DuKRIF_json.getKeyframeInfo(document, node, frameNumber, not self.cropToImageBounds.isChecked())

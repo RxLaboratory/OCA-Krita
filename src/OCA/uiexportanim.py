@@ -264,6 +264,11 @@ class UIExportAnim(object):
                 prevFrameNumber = frame
             frame = frame + 1
 
+        # set the last frame duration
+        if len(nodeInfo['frames']) > 0:
+            f = nodeInfo['frames'][-1]
+            f['duration'] = document.fullClipRangeEndTime() - f['frameNumber']
+
         return nodeInfo
 
     def _exportFlattenedFrame(self, document, fileFormat, frameNumber, parentDir):
@@ -338,6 +343,12 @@ class UIExportAnim(object):
                             nodeInfo['frames'].append(frameInfo)
                             prevFrameNumber = frame
                         frame = frame + 1
+
+                    # set the last frame duration
+                    if len(nodeInfo['frames']) > 0:
+                        f = nodeInfo['frames'][-1]
+                        f['duration'] = document.fullClipRangeEndTime() - f['frameNumber']
+
                 else:
                     frameInfo = self._exportNodeFrame(document, node, _fileFormat, frame, parentDir)
                     frameInfo['duration'] = document.playBackEndTime() - document.playBackStartTime()

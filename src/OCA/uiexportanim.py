@@ -225,7 +225,7 @@ class UIExportAnim(object):
             self.docInfo['layers'] = nodes
 
         # Write doc info
-        infoFile = open('{0}/{1}.json'.format(self.getPath(rootDir), fileName),  "w")
+        infoFile = open('{0}/{1}.oca'.format(self.getPath(rootDir), fileName),  "w")
         infoFile.write( json.dumps(self.docInfo, indent=4) )
         infoFile.close()
 

@@ -21,8 +21,8 @@
 
 from . import (exportanimdialog)
 from .dukrif import (DuKRIF_utils, DuKRIF_animation, DuKRIF_json, DuKRIF_io)
-from PyQt5.QtCore import (Qt, QRect) # pylint: disable=no-name-in-module
-from PyQt5.QtWidgets import (QFormLayout, QListWidget, QHBoxLayout, # pylint: disable=no-name-in-module
+from PyQt5.QtCore import (Qt, QRect) # pylint: disable=no-name-in-module # pylint: disable=import-error
+from PyQt5.QtWidgets import (QFormLayout, QListWidget, QHBoxLayout, # pylint: disable=no-name-in-module # pylint: disable=import-error
                              QDialogButtonBox, QVBoxLayout, QFrame,
                              QPushButton, QAbstractScrollArea, QLineEdit,
                              QMessageBox, QFileDialog, QCheckBox, QSpinBox,
@@ -70,6 +70,8 @@ class UIExportAnim(object):
         self.documentsList = []
         # Store Animation info whem exporting
         self.docInfo = {}
+        # Store Export dir
+        self.exportDir = ''
 
         self.directoryTextField.setReadOnly(True)
         self.directoryDialogButton.clicked.connect(self._selectDir)
@@ -171,7 +173,7 @@ class UIExportAnim(object):
         self.msgBox.exec_()
 
     def mkdir(self, directory):
-        target_directory = self.getPath(directory)
+        target_directory = self.getAbsolutePath(directory)
         if (os.path.exists(target_directory)
                 and os.path.isdir(target_directory)):
             return
@@ -181,8 +183,11 @@ class UIExportAnim(object):
         except OSError as e:
             raise e
 
-    def getPath(self, directory):
-        return self.directoryTextField.text() + '/' +  directory
+    def getAbsolutePath(self, directory):
+        return self.directoryTextField.text() + '/' +  self.getRelativePath(directory)
+
+    def getRelativePath(self, directory):
+        return self.exportDir + '/' +  directory
 
     def export(self, document):
         Application.setBatchmode(True) # pylint: disable=undefined-variable
@@ -190,12 +195,12 @@ class UIExportAnim(object):
 
         documentName = document.fileName() if document.fileName() else 'Untitled'  # noqa: E501
         fileName, extension = os.path.splitext(os.path.basename(documentName)) # pylint: disable=unused-variable
-        rootDir = fileName + '.oca'
-        self.mkdir(rootDir)
+        self.exportDir = fileName + '.oca'
+        self.mkdir('')
 
         # Collect doc info
         self.docInfo = DuKRIF_json.getDocInfo(document)
-        documentDir = rootDir + '/' + self.docInfo['name']
+        documentDir = self.docInfo['name']
         self.mkdir(documentDir)
 
         if not self.fullClipRadioButton.isChecked():
@@ -225,7 +230,7 @@ class UIExportAnim(object):
             self.docInfo['layers'] = nodes
 
         # Write doc info
-        infoFile = open('{0}/{1}.oca'.format(self.getPath(rootDir), fileName),  "w")
+        infoFile = open('{0}.oca'.format(self.getAbsolutePath(fileName)),  "w")
         infoFile.write( json.dumps(self.docInfo, indent=4) )
         infoFile.close()
 
@@ -267,7 +272,7 @@ class UIExportAnim(object):
 
         imageName = '{0}_{1}'.format( self.docInfo['name'], DuKRIF_utils.intToStr(frameNumber))
         imagePath = '{0}/{1}.{2}'.format( parentDir, imageName, fileFormat)
-        imageFileName = '{0}/{1}'.format( self.directoryTextField.text(), imagePath)   
+        imageFileName = self.getAbsolutePath(imagePath)
 
         succeed = DuKRIF_io.exportDocument(document, imageFileName)
         
@@ -356,7 +361,7 @@ class UIExportAnim(object):
 
         imageName = '{0}_{1}'.format( node.name(), DuKRIF_utils.intToStr(frameNumber))
         imagePath = '{0}/{1}.{2}'.format( parentDir, imageName, fileFormat)
-        imageFileName = '{0}/{1}'.format( self.directoryTextField.text(), imagePath)
+        imageFileName = imageFileName = self.getAbsolutePath(imagePath)
 
         if self.cropToImageBounds.isChecked():
             bounds = QRect()

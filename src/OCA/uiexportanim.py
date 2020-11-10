@@ -26,7 +26,7 @@ from PyQt5.QtWidgets import (QFormLayout, QListWidget, QHBoxLayout, # pylint: di
                              QDialogButtonBox, QVBoxLayout, QFrame,
                              QPushButton, QAbstractScrollArea, QLineEdit,
                              QMessageBox, QFileDialog, QCheckBox, QSpinBox,
-                             QComboBox, QRadioButton, QProgressDialog)
+                             QComboBox, QRadioButton, QProgressDialog, QAbstractItemView)
 import os
 import json
 import krita # pylint: disable=import-error
@@ -85,6 +85,7 @@ class UIExportAnim(object):
         self.mainDialog.setWindowModality(Qt.NonModal)
         self.widgetDocuments.setSizeAdjustPolicy(
             QAbstractScrollArea.AdjustToContents)
+        self.widgetDocuments.setSelectionMode(QAbstractItemView.MultiSelection)
 
     def initialize(self):
         self.loadDocuments()
@@ -168,8 +169,9 @@ class UIExportAnim(object):
         elif not self.directoryTextField.text():
             self.msgBox.setText(i18n("Select the initial directory.")) # pylint: disable=undefined-variable
         else:
-            self.export(selectedDocuments[0])
-            self.msgBox.setText(i18n("All layers has been exported.")) # pylint: disable=undefined-variable
+            for doc in selectedDocuments:
+                self.export(doc)
+            self.msgBox.setText(i18n("All Documents have been exported.")) # pylint: disable=undefined-variable
         self.msgBox.exec_()
 
     def mkdir(self, directory):

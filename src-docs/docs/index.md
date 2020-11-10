@@ -1,6 +1,6 @@
 # OCA for Krita
 
-[*OCA*, the Open Cel Animation format](https://github.com/Rainbox-dev/OCA) is an open format to ease the exchange of traditionnal/frame-by-frame/cel animation between different applications.
+[*OCA*, the Open Cel Animation format](http://rainboxlab.org/tools/oca/) is an open format to ease the exchange of traditionnal/frame-by-frame/cel animation between different applications.
 
 It is able to export all animation keyframes from a Krita document, keeping the layer structure, blending modes, and a lot of other information. This *OCA* format can then be imported in another application like *Adobe After Effects* or [*Blender*](http://blender.org).
 

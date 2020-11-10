@@ -19,7 +19,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with DuExportAnim. If not, see <http://www.gnu.org/licenses/>.
 
-from . import (exportanimdialog)
+from . import (exportanimdialog, ocaLib)
 from .dukrif import (DuKRIF_utils, DuKRIF_animation, DuKRIF_json, DuKRIF_io)
 from PyQt5.QtCore import (Qt, QRect) # pylint: disable=no-name-in-module # pylint: disable=import-error
 from PyQt5.QtWidgets import (QFormLayout, QListWidget, QHBoxLayout, # pylint: disable=no-name-in-module # pylint: disable=import-error
@@ -34,7 +34,7 @@ import krita # pylint: disable=import-error
 class UIExportAnim(object):
 
     def __init__(self):
-        self.version = "1.0.0"
+        self.version = "1.0.1"
 
         self.mainDialog = exportanimdialog.ExportAnimDialog()
         self.mainLayout = QVBoxLayout(self.mainDialog)
@@ -283,12 +283,11 @@ class UIExportAnim(object):
         
         if not succeed:
             frameInfo = DuKRIF_json.createKeyframeInfo("Export failed", "", frameNumber)
-            return frameInfo
-        
-        frameInfo = DuKRIF_json.createKeyframeInfo(imageName, imagePath, frameNumber)
-        frameInfo['position'] = [ self.docInfo['width'] / 2, self.docInfo['height'] / 2 ]
-        frameInfo['width'] = self.docInfo['width']
-        frameInfo['height'] = self.docInfo['height']
+        else:       
+            frameInfo = DuKRIF_json.createKeyframeInfo(imageName, imagePath, frameNumber)
+            frameInfo['position'] = [ self.docInfo['width'] / 2, self.docInfo['height'] / 2 ]
+            frameInfo['width'] = self.docInfo['width']
+            frameInfo['height'] = self.docInfo['height']
             
         return frameInfo
 
@@ -309,6 +308,10 @@ class UIExportAnim(object):
 
             nodeInfo = DuKRIF_json.getNodeInfo(document, node)
             nodeInfo['fileType'] = fileFormat
+
+            # translate blending mode to OCA
+            if ocaLib.OCABlendingModes[nodeInfo['blendingMode']]:
+                nodeInfo['blendingMode'] = ocaLib.OCABlendingModes[nodeInfo['blendingMode']]
 
             if node.type() == 'grouplayer':
                 newDir = os.path.join(parentDir, node.name())

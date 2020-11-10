@@ -22,7 +22,6 @@
 import krita # pylint: disable=import-error
 from . import uiexportanim
 
-
 class OCAExport(krita.Extension):
 
     def __init__(self, parent):

@@ -20,7 +20,7 @@ This *OCA* exporter will export the most common features of all drawing/animatio
 - Layer Visibility
 - Keyframes and their duration (animation exposure)
 - Opacity Keyframes
-- Blending Modes
+- Blending Modes (see [this table](blending-modes.md) for a list)
 - Layer Sizes and Coordinates
 - Document background color
 - Document color depth

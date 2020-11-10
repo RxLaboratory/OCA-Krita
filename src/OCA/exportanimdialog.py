@@ -19,7 +19,7 @@
 #    You should have received a copy of the GNU General Public License
 #    along with DuExportAnim. If not, see <http://www.gnu.org/licenses/>.
 
-from PyQt5.QtWidgets import QDialog # pylint: disable=no-name-in-module
+from PyQt5.QtWidgets import QDialog # pylint: disable=no-name-in-module #pylint: disable=import-error
 
 class ExportAnimDialog(QDialog):
 

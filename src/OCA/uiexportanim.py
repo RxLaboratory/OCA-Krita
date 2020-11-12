@@ -34,7 +34,7 @@ import krita # pylint: disable=import-error
 class UIExportAnim(object):
 
     def __init__(self):
-        self.version = "1.0.1"
+        self.version = "1.1.0"
 
         self.mainDialog = exportanimdialog.ExportAnimDialog()
         self.mainLayout = QVBoxLayout(self.mainDialog)

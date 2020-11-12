@@ -35,6 +35,7 @@ class UIExportAnim(object):
 
     def __init__(self):
         self.version = "1.1.0"
+        self.ocaVersion = "1.1.0"
 
         self.mainDialog = exportanimdialog.ExportAnimDialog()
         self.mainLayout = QVBoxLayout(self.mainDialog)
@@ -202,6 +203,7 @@ class UIExportAnim(object):
 
         # Collect doc info
         self.docInfo = DuKRIF_json.getDocInfo(document)
+        self.docInfo['ocaVersion'] = self.ocaVersion
         documentDir = self.docInfo['name']
         self.mkdir(documentDir)
 

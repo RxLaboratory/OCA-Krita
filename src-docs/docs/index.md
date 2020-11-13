@@ -25,6 +25,8 @@ This *OCA* exporter will export the most common features of all drawing/animatio
 - Document background color
 - Document color depth
 
+![YOUTUBE](cjAMmYF8OtE)
+
 ## How to install OCA for Krita
 
 This plugin is installed the same way as other Krita plugins.

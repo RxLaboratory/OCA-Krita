@@ -7,9 +7,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <meta name="author" content="Nicolas Dufresne and contributors">
-  
+  <link rel="canonical" href="http://rainboxlab.org/layer-tags.html">
   <link rel="shortcut icon" href="img/favicon.ico">
-  <title>OCA for Krita<br />Documentation<br />v1.0.0</title>
+  <title>Layer tags - OCA for Krita<br />Documentation<br />v1.0.0</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
 
   <link rel="stylesheet" href="css/theme.css" />
@@ -17,6 +17,13 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" />
   <link href="style.css" rel="stylesheet" />
   <link href="video.css" rel="stylesheet" />
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Layer tags";
+    var mkdocs_page_input_path = "layer-tags.md";
+    var mkdocs_page_url = "/layer-tags.html";
+  </script>
   
   <script src="js/jquery-2.1.1.min.js" defer></script>
   <script src="js/modernizr-2.8.3.min.js" defer></script>
@@ -35,7 +42,7 @@
       <div class="wy-side-nav-search">
         <a href="." class="icon icon-home"> OCA for Krita<br />Documentation<br />v1.0.0</a>
         <div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="/search.html" method="get">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
   </form>
 </div>
@@ -92,8 +99,12 @@
   <ul class="wy-breadcrumbs">
     <li><a href=".">Docs</a> &raquo;</li>
     
+      
     
+    <li>Layer tags</li>
     <li class="wy-breadcrumbs-aside">
+      
+        <a href="https://github.com/Rainbox-dev/DuKRIF_OCA/tree/master/src-docs/docs/layer-tags.md"> Edit on Oca-Krita-Docs</a>
       
     </li>
   </ul>
@@ -103,12 +114,19 @@
           <div role="main">
             <div class="section">
               
-
-  <h1 id="404-page-not-found">404</h1>
-
-  <p><strong>Page not found</strong></p>
-
-
+                <h1 id="layer-tags">Layer tags</h1>
+<p>You can use tags to automatically <em>merge</em> or <em>ignore</em> them when exporting, or set them as <em>reference</em> layers.</p>
+<p>You just have to use the tag in the names of the layers. These are the available tags:</p>
+<ul>
+<li><code>_merge_</code>: The layer or the group will be flattened. For a single layer, that means all transformation and transparency masks will be applied.</li>
+<li><code>_ignore_</code>: The layer will not be exported and it will not be visible if it is in a merged group.</li>
+<li><code>_reference_</code>: The layer will be set as a reference layer. That means it will be set to not be renderable in the destination application (e.g. <em>guide layer</em> in <em>After Effects</em>, <em>disabled in renderer</em> in <em>Blender</em>)</li>
+</ul>
+<p><img alt="" src="img/layer-tags.png" /></p>
+<p>In this example:<br />
+The group will be exported as a single layer with the <em>Layer 04</em> visible. <em>Layer 03</em> will not be visible. <em>Layer 02</em> will be visible only if the option <em>Export &ldquo;<em>reference</em>&rdquo; layers</em> is checked.<br />
+<em>Layer 01</em> will be exported as a single layer with its transparency applied in the alpha chanel.</p>
+              
             </div>
           </div>
           <footer>
@@ -140,7 +158,7 @@
       
     </span>
 </div>
-    <script>var base_url = '';</script>
+    <script>var base_url = '.';</script>
     <script src="js/theme.js" defer></script>
       <script src="video.js" defer></script>
       <script src="search/main.js" defer></script>

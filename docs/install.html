@@ -7,9 +7,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
   <meta name="author" content="Nicolas Dufresne and contributors">
-  
+  <link rel="canonical" href="http://rainboxlab.org/install.html">
   <link rel="shortcut icon" href="img/favicon.ico">
-  <title>OCA for Krita<br />Documentation<br />v1.0.0</title>
+  <title>Installation - OCA for Krita<br />Documentation<br />v1.0.0</title>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700" />
 
   <link rel="stylesheet" href="css/theme.css" />
@@ -17,6 +17,13 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" />
   <link href="style.css" rel="stylesheet" />
   <link href="video.css" rel="stylesheet" />
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Installation";
+    var mkdocs_page_input_path = "install.md";
+    var mkdocs_page_url = "/install.html";
+  </script>
   
   <script src="js/jquery-2.1.1.min.js" defer></script>
   <script src="js/modernizr-2.8.3.min.js" defer></script>
@@ -35,7 +42,7 @@
       <div class="wy-side-nav-search">
         <a href="." class="icon icon-home"> OCA for Krita<br />Documentation<br />v1.0.0</a>
         <div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="/search.html" method="get">
+  <form id ="rtd-search-form" class="wy-form" action="./search.html" method="get">
     <input type="text" name="q" placeholder="Search docs" title="Type search term here" />
   </form>
 </div>
@@ -46,8 +53,14 @@
                     <li class="toctree-l1"><a class="reference internal" href="index.html">OCA for Krita</a>
                     </li>
                 </ul>
-                <ul>
-                    <li class="toctree-l1"><a class="reference internal" href="install.html">Installation</a>
+                <ul class="current">
+                    <li class="toctree-l1 current"><a class="reference internal current" href="install.html">Installation</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#using-the-plugin-importer">Using the plugin importer</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#manually">Manually</a>
+    </li>
+    </ul>
                     </li>
                 </ul>
                 <ul>
@@ -92,8 +105,12 @@
   <ul class="wy-breadcrumbs">
     <li><a href=".">Docs</a> &raquo;</li>
     
+      
     
+    <li>Installation</li>
     <li class="wy-breadcrumbs-aside">
+      
+        <a href="https://github.com/Rainbox-dev/DuKRIF_OCA/tree/master/src-docs/docs/install.md"> Edit on Oca-Krita-Docs</a>
       
     </li>
   </ul>
@@ -103,15 +120,42 @@
           <div role="main">
             <div class="section">
               
-
-  <h1 id="404-page-not-found">404</h1>
-
-  <p><strong>Page not found</strong></p>
-
-
+                <h1 id="how-to-install-oca-for-krita">How to install OCA for Krita</h1>
+<p>This plugin is installed the same way as other Krita plugins.</p>
+<h2 id="using-the-plugin-importer">Using the plugin importer</h2>
+<ol>
+<li>Open the Script Importer plugin in Krita via <code>Tools ‣ Scripts ‣ Import Python Plugin...</code></li>
+<li>Locate and import the <em>OCA.zip</em> file you&rsquo;ve downloaded.</li>
+<li>Restart Krita</li>
+<li>Go to <code>Settings ‣ Configure Krita...</code></li>
+<li>In the <code>Python Plugin Manager</code> tab, enable the <em>OCA</em> plugin</li>
+<li>Restart Krita</li>
+</ol>
+<h2 id="manually">Manually</h2>
+<ol>
+<li>Copy (or symlink if you&rsquo;re developping) both the <em>OCA.desktop</em> file and the <em>OCA</em> folder to the <em>pykrita</em> subfolder of the Krita resources folder.</li>
+<li>Start Krita</li>
+<li>Go to <code>Settings ‣ Configure Krita...</code></li>
+<li>In the <code>Python Plugin Manager</code> tab, enable the <em>OCA</em> plugin</li>
+<li>Restart Krita</li>
+</ol>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>To find your resources folder, start Krita and click the <code>Settings ‣ Manage Resources…</code> menu item. This will open a dialog box. Click the <code>Open Resources Folder</code> button.</p>
+</div>
+              
             </div>
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="blending-modes.html" class="btn btn-neutral float-right" title="Blending Modes">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="OCA for Krita"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
@@ -137,10 +181,14 @@
     <span class="rst-current-version" data-toggle="rst-current-version">
       
       
+        <span><a href="index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="blending-modes.html" style="color: #fcfcfc">Next &raquo;</a></span>
       
     </span>
 </div>
-    <script>var base_url = '';</script>
+    <script>var base_url = '.';</script>
     <script src="js/theme.js" defer></script>
       <script src="video.js" defer></script>
       <script src="search/main.js" defer></script>

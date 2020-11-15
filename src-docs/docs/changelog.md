@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.0
+
+Added [Layer Tags](layer-tags.md)!
+
 ## 1.1.0
 
 Support for the "inherit alpha" layer option, and added the version in the *.oca*, implements [*OCA v1.1.0*](http://rainboxlab.org/tools/oca)

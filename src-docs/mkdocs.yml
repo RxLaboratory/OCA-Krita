@@ -29,6 +29,7 @@ dev_addr: '127.0.0.1:8001'
 nav:
     - OCA for Krita: index.md
     - Installation: install.md
+    - Layer Tags: layer-tags.md
     - Blending Modes: blending-modes.md
     - Changelog: changelog.md
     - License:

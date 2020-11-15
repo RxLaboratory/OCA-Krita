@@ -314,7 +314,7 @@ class UIExportAnim(object):
             the defined format."""
 
         nodes = []
-
+        i = 0
         for node in parentNode.childNodes():
 
             if (self.progressdialog.wasCanceled()):
@@ -322,6 +322,7 @@ class UIExportAnim(object):
                 break
 
             newDir = ''
+            nodeName = node.name()
 
             # ignore filters
             if (not self.exportFilterLayersCheckBox.isChecked()
@@ -333,11 +334,13 @@ class UIExportAnim(object):
                 continue
             # ignore reference
             if (not self.exportReferenceCheckbox.isChecked
-                  and "_reference_" in node.name()):
+                  and "_reference_" in nodeName):
                 continue
             # ignore _ignore_
-            if "_ignore_" in node.name():
+            if "_ignore_" in nodeName:
                 continue
+
+            merge = "_merge_" in nodeName
 
             nodeInfo = DuKRIF_json.getNodeInfo(document, node)
             nodeInfo['fileType'] = fileFormat
@@ -347,58 +350,79 @@ class UIExportAnim(object):
             if ocaLib.OCABlendingModes[nodeInfo['blendingMode']]:
                 nodeInfo['blendingMode'] = ocaLib.OCABlendingModes[nodeInfo['blendingMode']]
 
+            # if it's a group
             if node.type() == 'grouplayer':
-                newDir = os.path.join(parentDir, node.name())
-                self.mkdir(newDir)
+                if merge: # export if merged
+                    self._disable_ignore_nodes(node)
+                    node.mergeDown()
+                    self._exportNode(document, node, nodeInfo, fileFormat, parentDir)
+                else: # create dir if not merged
+                    newDir = os.path.join(parentDir, node.name())
+                    self.mkdir(newDir)
+            # if not a group
             else:
-                nodeName = node.name()
-
-                self.progressdialog.setLabelText(i18n("Exporting") + " " + node.name()) # pylint: disable=undefined-variable
-
-                _fileFormat = fileFormat
-                if '[jpeg]' in nodeName:
-                    _fileFormat = 'jpeg'
-                elif '[png]' in nodeName:
-                    _fileFormat = 'png'
-                elif '[exr]' in nodeName:
-                    _fileFormat = 'exr'
-
-                frame = self.docInfo['startTime']
-
-                if node.animated():
-                    nodeDir = parentDir + '/' + node.name()
-                    prevFrameNumber = -1
-                    self.mkdir(nodeDir)
-                    while frame <= self.docInfo['endTime']:
-                        self.progressdialog.setValue(frame)
-                        if (self.progressdialog.wasCanceled()):
-                            self._end_export()
-                            break
-                        if node.hasKeyframeAtTime(frame):
-                            frameInfo = self._exportNodeFrame(document, node, _fileFormat, frame, nodeDir)
-                            if prevFrameNumber >= 0:
-                                nodeInfo['frames'][-1]['duration'] = frame - prevFrameNumber
-                            nodeInfo['frames'].append(frameInfo)
-                            prevFrameNumber = frame
-                        frame = frame + 1
-
-                    # set the last frame duration
-                    if len(nodeInfo['frames']) > 0:
-                        f = nodeInfo['frames'][-1]
-                        f['duration'] = document.fullClipRangeEndTime() - f['frameNumber']
-
-                else:
-                    frameInfo = self._exportNodeFrame(document, node, _fileFormat, frame, parentDir)
-                    frameInfo['duration'] = document.playBackEndTime() - document.playBackStartTime()
-                    nodeInfo['frames'].append(frameInfo)
-
-            if node.childNodes():
+                if merge:
+                    # create a layer right under
+                    mergeNode = document.createNode(nodeName, 'paintlayer')
+                    if i > 0:
+                        aboveNode = parentNode.childNodes()[i-1]
+                    else:
+                        aboveNode = None
+                    parentNode.addChildNode(mergeNode, aboveNode)
+                    node.mergeDown()
+                self._exportNode(document, node, nodeInfo, fileFormat, parentDir)
+            
+            # if there are children and not merged, export them
+            if node.childNodes() and not merge:
                 childNodes = self._exportLayers(document, node, fileFormat, newDir)
                 nodeInfo['childLayers'] = childNodes
 
             nodes.append(nodeInfo)
+            i = i+1
 
         return nodes
+
+    def _exportNode(self, document, node, nodeInfo, fileFormat, parentDir):
+        nodeName = node.name()
+
+        self.progressdialog.setLabelText(i18n("Exporting") + " " + node.name()) # pylint: disable=undefined-variable
+
+        _fileFormat = fileFormat
+        if '[jpeg]' in nodeName:
+            _fileFormat = 'jpeg'
+        elif '[png]' in nodeName:
+            _fileFormat = 'png'
+        elif '[exr]' in nodeName:
+            _fileFormat = 'exr'
+
+        frame = self.docInfo['startTime']
+
+        if node.animated():
+            nodeDir = parentDir + '/' + node.name()
+            prevFrameNumber = -1
+            self.mkdir(nodeDir)
+            while frame <= self.docInfo['endTime']:
+                self.progressdialog.setValue(frame)
+                if (self.progressdialog.wasCanceled()):
+                    self._end_export()
+                    break
+                if node.hasKeyframeAtTime(frame):
+                    frameInfo = self._exportNodeFrame(document, node, _fileFormat, frame, nodeDir)
+                    if prevFrameNumber >= 0:
+                        nodeInfo['frames'][-1]['duration'] = frame - prevFrameNumber
+                    nodeInfo['frames'].append(frameInfo)
+                    prevFrameNumber = frame
+                frame = frame + 1
+
+            # set the last frame duration
+            if len(nodeInfo['frames']) > 0:
+                f = nodeInfo['frames'][-1]
+                f['duration'] = document.fullClipRangeEndTime() - f['frameNumber']
+
+        else:
+            frameInfo = self._exportNodeFrame(document, node, _fileFormat, frame, parentDir)
+            frameInfo['duration'] = document.playBackEndTime() - document.playBackStartTime()
+            nodeInfo['frames'].append(frameInfo)
 
     def _exportNodeFrame(self, document, node, fileFormat, frameNumber, parentDir):
 

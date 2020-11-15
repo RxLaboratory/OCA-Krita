@@ -20,7 +20,7 @@
 #    along with DuExportAnim. If not, see <http://www.gnu.org/licenses/>.
 
 from . import (exportanimdialog, ocaLib)
-from .dukrif import (DuKRIF_utils, DuKRIF_animation, DuKRIF_json, DuKRIF_io)
+from .dukrif import (DuKRIF_utils, DuKRIF_animation, DuKRIF_json, DuKRIF_io) # pylint: disable=import-error
 from PyQt5.QtCore import (Qt, QRect) # pylint: disable=no-name-in-module # pylint: disable=import-error
 from PyQt5.QtWidgets import (QFormLayout, QListWidget, QHBoxLayout, # pylint: disable=no-name-in-module # pylint: disable=import-error
                              QDialogButtonBox, QVBoxLayout, QFrame,
@@ -33,8 +33,10 @@ import krita # pylint: disable=import-error
 
 class UIExportAnim(object):
 
+    disabled_layers = []
+
     def __init__(self):
-        self.version = "1.1.0"
+        self.version = "1.2.0"
         self.ocaVersion = "1.1.0"
 
         self.mainDialog = exportanimdialog.ExportAnimDialog()
@@ -52,8 +54,9 @@ class UIExportAnim(object):
         self.directoryTextField = QLineEdit()
         self.directoryDialogButton = QPushButton(i18n("...")) # pylint: disable=undefined-variable
         self.flattenImageCheckbox = QCheckBox(i18n("Flatten image")) # pylint: disable=undefined-variable
+        self.exportReferenceCheckbox = QCheckBox(i18n("Export visible \"_reference_\" layers")) # pylint: disable=undefined-variable
         self.exportFilterLayersCheckBox = QCheckBox(i18n("Export filter layers")) # pylint: disable=undefined-variable
-        self.ignoreInvisibleLayersCheckBox = QCheckBox(i18n("Ignore invisible layers")) # pylint: disable=undefined-variable
+        self.exportInvisibleLayersCheckBox = QCheckBox(i18n("Export invisible layers")) # pylint: disable=undefined-variable
         self.cropToImageBounds = QCheckBox(i18n("Adjust export size to layer content")) # pylint: disable=undefined-variable
 
         self.rectWidthSpinBox = QSpinBox()
@@ -105,10 +108,11 @@ class UIExportAnim(object):
         self.directorySelectorLayout.addWidget(self.directoryDialogButton)
 
         self.optionsLayout.addWidget(self.flattenImageCheckbox)
+        self.optionsLayout.addWidget(self.exportReferenceCheckbox)
         self.optionsLayout.addWidget(self.exportFilterLayersCheckBox)
-        self.optionsLayout.addWidget(self.ignoreInvisibleLayersCheckBox)
+        self.optionsLayout.addWidget(self.exportInvisibleLayersCheckBox)
         self.optionsLayout.addWidget(self.cropToImageBounds)
-        self.ignoreInvisibleLayersCheckBox.setChecked(True)
+        self.exportReferenceCheckbox.setChecked(True)
 
         self.resSpinBoxLayout.addRow(i18n("dpi:"), self.resSpinBox) # pylint: disable=undefined-variable
 
@@ -211,7 +215,6 @@ class UIExportAnim(object):
             self.docInfo['startTime'] = document.playBackStartTime()
             self.docInfo['endTime'] = document.playBackEndTime()
             
-
         self.progressdialog = QProgressDialog("Exporting animation...", "Cancel", 0, self.docInfo['endTime'] - self.docInfo['startTime'])
         self.progressdialog.setWindowModality(Qt.WindowModality.WindowModal)
 
@@ -243,8 +246,14 @@ class UIExportAnim(object):
         Application.setBatchmode(False) # pylint: disable=undefined-variable
         document.setBatchmode(False)
 
+    def _end_export(self):
+        # Re-enable all layers
+        for node in self.disabled_layers:
+            node.setVisible(True)
+        self.disabled_layers = []
+
     def _exportFlattened(self, document, fileFormat, parentDir):
-        """ This method exports an flattened image of the document for each keyframe of the animation. """
+        """ This method exports a flattened image of the document for each keyframe of the animation. """
 
         nodeInfo = DuKRIF_json.createNodeInfo( self.docInfo['name'])
         nodeInfo['fileType'] = fileFormat
@@ -256,9 +265,14 @@ class UIExportAnim(object):
         frame = self.docInfo['startTime']
         prevFrameNumber = -1
 
+        self._disable_ignore_nodes(document.rootNode())
+        if not self.exportReferenceCheckbox.isChecked():
+            self._disable_reference_nodes(document.rootNode())
+
         while frame <= self.docInfo['endTime']:
             self.progressdialog.setValue(frame)
             if (self.progressdialog.wasCanceled()):
+                self._end_export()
                 break
             if DuKRIF_animation.hasKeyframeAtTime(document.rootNode(), frame):
                 frameInfo = self._exportFlattenedFrame(document, fileFormat, frame, parentDir)
@@ -302,16 +316,32 @@ class UIExportAnim(object):
         nodes = []
 
         for node in parentNode.childNodes():
+
+            if (self.progressdialog.wasCanceled()):
+                self._end_export()
+                break
+
             newDir = ''
+
+            # ignore filters
             if (not self.exportFilterLayersCheckBox.isChecked()
                   and 'filter' in node.type()):
                 continue
-            elif (self.ignoreInvisibleLayersCheckBox.isChecked()
+            # ignore invisible
+            if (not self.exportInvisibleLayersCheckBox.isChecked()
                   and not node.visible()):
+                continue
+            # ignore reference
+            if (not self.exportReferenceCheckbox.isChecked
+                  and "_reference_" in node.name()):
+                continue
+            # ignore _ignore_
+            if "_ignore_" in node.name():
                 continue
 
             nodeInfo = DuKRIF_json.getNodeInfo(document, node)
             nodeInfo['fileType'] = fileFormat
+            nodeInfo['reference'] = "_reference_" in node.name()
 
             # translate blending mode to OCA
             if ocaLib.OCABlendingModes[nodeInfo['blendingMode']]:
@@ -342,6 +372,7 @@ class UIExportAnim(object):
                     while frame <= self.docInfo['endTime']:
                         self.progressdialog.setValue(frame)
                         if (self.progressdialog.wasCanceled()):
+                            self._end_export()
                             break
                         if node.hasKeyframeAtTime(frame):
                             frameInfo = self._exportNodeFrame(document, node, _fileFormat, frame, nodeDir)
@@ -422,10 +453,34 @@ class UIExportAnim(object):
     def _toggleFlatten(self):
         flatten = self.flattenImageCheckbox.isChecked()
         self.exportFilterLayersCheckBox.setDisabled(flatten)
-        self.ignoreInvisibleLayersCheckBox.setDisabled(flatten)
+        self.exportInvisibleLayersCheckBox.setDisabled(flatten)
         self.cropToImageBounds.setDisabled(flatten)
 
         if flatten:
             self.exportFilterLayersCheckBox.setChecked(True)
-            self.ignoreInvisibleLayersCheckBox.setChecked(True)
+            self.exportInvisibleLayersCheckBox.setChecked(False)
+            self.exportReferenceCheckbox.setChecked(False)
             self.cropToImageBounds.setChecked(False)
+        else:
+            self.exportFilterLayersCheckBox.setChecked(False)
+            self.exportReferenceCheckbox.setChecked(True)
+
+    def _disable_ignore_nodes(self, parentNode, disable=True):
+        for node in parentNode.childNodes():
+            if node.visible():
+                if '_ignore_' in node.name():
+                    node.setVisible(not disable)
+                    self.disabled_layers.append(node)
+
+                if node.type() == 'grouplayer':
+                    self._disable_ignore_nodes(node)
+
+    def _disable_reference_nodes(self, parentNode, disable=True):
+        for node in parentNode.childNodes():
+            if node.visible():
+                if '_reference_' in node.name():
+                    node.setVisible(not disable)
+                    self.disabled_layers.append(node)
+
+                if node.type() == 'grouplayer':
+                    self._disable_reference_nodes(node)

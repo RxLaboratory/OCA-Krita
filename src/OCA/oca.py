@@ -31,7 +31,7 @@ class OCAExport(krita.Extension):
         pass
 
     def createActions(self, window):
-        action = window.createAction("export_anim", i18n("OCA Export")) # pylint: disable=undefined-variable
+        action = window.createAction("oca_export", i18n("OCA Export")) # pylint: disable=undefined-variable
         action.setToolTip(i18n("Export animation keyframes from a document.")) # pylint: disable=undefined-variable
         action.triggered.connect(self.initialize)
 

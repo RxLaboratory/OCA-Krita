@@ -20,7 +20,7 @@
 #    along with DuExportAnim. If not, see <http://www.gnu.org/licenses/>.
 
 from . import (exportanimdialog, ocaLib)
-from .dukrif import (DuKRIF_utils, DuKRIF_animation, DuKRIF_json, DuKRIF_io) # pylint: disable=import-error
+from .dukrif import (DuKRIF_utils, DuKRIF_animation, DuKRIF_json, DuKRIF_io, DuKRIF_nodes) # pylint: disable=import-error
 from PyQt5.QtCore import (Qt, QRect) # pylint: disable=no-name-in-module # pylint: disable=import-error
 from PyQt5.QtWidgets import (QFormLayout, QListWidget, QHBoxLayout, # pylint: disable=no-name-in-module # pylint: disable=import-error
                              QDialogButtonBox, QVBoxLayout, QFrame,
@@ -54,7 +54,7 @@ class UIExportAnim(object):
         self.directoryTextField = QLineEdit()
         self.directoryDialogButton = QPushButton(i18n("...")) # pylint: disable=undefined-variable
         self.flattenImageCheckbox = QCheckBox(i18n("Flatten image")) # pylint: disable=undefined-variable
-        self.exportReferenceCheckbox = QCheckBox(i18n("Export visible \"_reference_\" layers")) # pylint: disable=undefined-variable
+        self.exportReferenceCheckbox = QCheckBox(i18n("Export \"_reference_\" layers")) # pylint: disable=undefined-variable
         self.exportFilterLayersCheckBox = QCheckBox(i18n("Export filter layers")) # pylint: disable=undefined-variable
         self.exportInvisibleLayersCheckBox = QCheckBox(i18n("Export invisible layers")) # pylint: disable=undefined-variable
         self.cropToImageBounds = QCheckBox(i18n("Adjust export size to layer content")) # pylint: disable=undefined-variable
@@ -170,7 +170,7 @@ class UIExportAnim(object):
 
         self.msgBox = QMessageBox(self.mainDialog)
         if not selectedDocuments:
-            self.msgBox.setText(i18n("Select one document.")) # pylint: disable=undefined-variable
+            self.msgBox.setText(i18n("Select at least one document.")) # pylint: disable=undefined-variable
         elif not self.directoryTextField.text():
             self.msgBox.setText(i18n("Select the initial directory.")) # pylint: disable=undefined-variable
         else:
@@ -198,6 +198,10 @@ class UIExportAnim(object):
 
     def export(self, document):
         Application.setBatchmode(True) # pylint: disable=undefined-variable
+
+        # Let's duplicate the document first
+        document = document.clone()
+
         document.setBatchmode(True)
 
         documentName = document.fileName() if document.fileName() else 'Untitled'  # noqa: E501
@@ -242,6 +246,9 @@ class UIExportAnim(object):
         infoFile.close()
 
         self.progressdialog.close()
+
+        # close document
+        document.close()
 
         Application.setBatchmode(False) # pylint: disable=undefined-variable
         document.setBatchmode(False)
@@ -314,8 +321,8 @@ class UIExportAnim(object):
             the defined format."""
 
         nodes = []
-        i = 0
-        for node in parentNode.childNodes():
+
+        for i, node in enumerate(parentNode.childNodes()):
 
             if (self.progressdialog.wasCanceled()):
                 self._end_export()
@@ -342,34 +349,27 @@ class UIExportAnim(object):
 
             merge = "_merge_" in nodeName
 
+            if merge:
+                self._disable_ignore_nodes(node)
+                node = DuKRIF_nodes.flattenNode(document, node, i, parentNode)
+
             nodeInfo = DuKRIF_json.getNodeInfo(document, node)
             nodeInfo['fileType'] = fileFormat
             nodeInfo['reference'] = "_reference_" in node.name()
 
             # translate blending mode to OCA
-            if ocaLib.OCABlendingModes[nodeInfo['blendingMode']]:
-                nodeInfo['blendingMode'] = ocaLib.OCABlendingModes[nodeInfo['blendingMode']]
+            try:
+                if ocaLib.OCABlendingModes[nodeInfo['blendingMode']]:
+                    nodeInfo['blendingMode'] = ocaLib.OCABlendingModes[nodeInfo['blendingMode']]
+            except KeyError:
+                nodeInfo['blendingMode'] = 'normal'
 
             # if it's a group
             if node.type() == 'grouplayer':
-                if merge: # export if merged
-                    self._disable_ignore_nodes(node)
-                    node.mergeDown()
-                    self._exportNode(document, node, nodeInfo, fileFormat, parentDir)
-                else: # create dir if not merged
-                    newDir = os.path.join(parentDir, node.name())
-                    self.mkdir(newDir)
+                newDir = os.path.join(parentDir, node.name())
+                self.mkdir(newDir)
             # if not a group
             else:
-                if merge:
-                    # create a layer right under
-                    mergeNode = document.createNode(nodeName, 'paintlayer')
-                    if i > 0:
-                        aboveNode = parentNode.childNodes()[i-1]
-                    else:
-                        aboveNode = None
-                    parentNode.addChildNode(mergeNode, aboveNode)
-                    node.mergeDown()
                 self._exportNode(document, node, nodeInfo, fileFormat, parentDir)
             
             # if there are children and not merged, export them
@@ -378,7 +378,6 @@ class UIExportAnim(object):
                 nodeInfo['childLayers'] = childNodes
 
             nodes.append(nodeInfo)
-            i = i+1
 
         return nodes
 
@@ -397,7 +396,7 @@ class UIExportAnim(object):
 
         frame = self.docInfo['startTime']
 
-        if node.animated():
+        if node.animated() or node.type() == 'grouplayer':
             nodeDir = parentDir + '/' + node.name()
             prevFrameNumber = -1
             self.mkdir(nodeDir)
@@ -406,7 +405,7 @@ class UIExportAnim(object):
                 if (self.progressdialog.wasCanceled()):
                     self._end_export()
                     break
-                if node.hasKeyframeAtTime(frame):
+                if DuKRIF_animation.hasKeyframeAtTime(node, frame):
                     frameInfo = self._exportNodeFrame(document, node, _fileFormat, frame, nodeDir)
                     if prevFrameNumber >= 0:
                         nodeInfo['frames'][-1]['duration'] = frame - prevFrameNumber

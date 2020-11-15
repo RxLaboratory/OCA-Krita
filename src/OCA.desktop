@@ -3,6 +3,6 @@ Type=Service
 ServiceTypes=Krita/PythonPlugin
 X-KDE-Library=OCA
 X-Python-2-Compatible=false
-X-Krita-Manual=Manual.html
+X-Krita-Manual=manual.html
 Name=OCA
 Comment=Exports Animation keyfranes from Krita to a JSON format + PNG/EXR

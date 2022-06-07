@@ -2,7 +2,8 @@
 
 ## 1.2.1
 
-Fixed export size and position when exporting to document size (without cropping to layer size)
+- Fixed export size and position when exporting to document size (without cropping to layer size).
+- Fixed filename issues when some layer names start or end with a space.
 
 ## 1.2.0
 

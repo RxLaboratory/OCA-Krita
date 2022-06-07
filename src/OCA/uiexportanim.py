@@ -1,23 +1,24 @@
-# DuExportAnim - Duduf Export Animation for Krita
-# Copyright (c) 2020 - Nicolas Dufresne, Rainbox Laboratory
+# OCA Exporter for Krita
+# Copyright (c) 2020-2022 - Nicolas Dufresne, RxLaboratory and contributors
 # This script is licensed under the GNU General Public License v3
 # https://rainboxlab.org
 # 
-# DuExportAnim was made using "Export Layers" for Krita, which is licensed CC 0 1.0  - public domain
+# OCA was made using "Export Layers" for Krita, which is licensed CC 0 1.0  - public domain
 #
-# This file is part of DuExportAnim.
-#   DuExportAnim is free software: you can redistribute it and/or modify
+# This file is part of OCA.
+#   OCA is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
 #
-#    DuExportAnim is distributed in the hope that it will be useful,
+#    OCA is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    You should have received a copy of the GNU General Public License
-#    along with DuExportAnim. If not, see <http://www.gnu.org/licenses/>.
+#    along with OCA. If not, see <http://www.gnu.org/licenses/>.
+
 
 from . import exportanimdialog
 from .ocapy import oca as ocaLib
@@ -351,7 +352,7 @@ class UIExportAnim(object):
             merge = "_merge_" in nodeName
 
             if merge:
-                self._disable_ignore_nodes(node)
+                DuKRIF_nodes.disableIgnoreNodes(node)
                 node = DuKRIF_nodes.flattenNode(document, node, i, parentNode)
 
             nodeInfo = DuKRIF_json.getNodeInfo(document, node)
@@ -492,16 +493,6 @@ class UIExportAnim(object):
         else:
             self.exportFilterLayersCheckBox.setChecked(False)
             self.exportReferenceCheckbox.setChecked(True)
-
-    def _disable_ignore_nodes(self, parentNode, disable=True):
-        for node in parentNode.childNodes():
-            if node.visible():
-                if '_ignore_' in node.name():
-                    node.setVisible(not disable)
-                    self.disabled_layers.append(node)
-
-                if node.type() == 'grouplayer':
-                    self._disable_ignore_nodes(node)
 
     def _disable_reference_nodes(self, parentNode, disable=True):
         for node in parentNode.childNodes():

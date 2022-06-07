@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.1
+
+Fixed export size and position when exporting to document size (without cropping to layer size)
+
 ## 1.2.0
 
 Added [Layer Tags](layer-tags.md)!

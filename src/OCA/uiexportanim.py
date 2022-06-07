@@ -19,7 +19,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with DuExportAnim. If not, see <http://www.gnu.org/licenses/>.
 
-from . import (exportanimdialog, ocaLib)
+from . import exportanimdialog
+from .ocapy import oca as ocaLib
 from .dukrif import (DuKRIF_utils, DuKRIF_animation, DuKRIF_json, DuKRIF_io, DuKRIF_nodes) # pylint: disable=import-error
 from PyQt5.QtCore import (Qt, QRect) # pylint: disable=no-name-in-module # pylint: disable=import-error
 from PyQt5.QtWidgets import (QFormLayout, QListWidget, QHBoxLayout, # pylint: disable=no-name-in-module # pylint: disable=import-error
@@ -36,7 +37,7 @@ class UIExportAnim(object):
     disabled_layers = []
 
     def __init__(self):
-        self.version = "1.2.0"
+        self.version = "1.2.1"
         self.ocaVersion = "1.1.0"
 
         self.mainDialog = exportanimdialog.ExportAnimDialog()
@@ -329,7 +330,7 @@ class UIExportAnim(object):
                 break
 
             newDir = ''
-            nodeName = node.name()
+            nodeName = node.name().strip()
 
             # ignore filters
             if (not self.exportFilterLayersCheckBox.isChecked()
@@ -355,18 +356,22 @@ class UIExportAnim(object):
 
             nodeInfo = DuKRIF_json.getNodeInfo(document, node)
             nodeInfo['fileType'] = fileFormat
-            nodeInfo['reference'] = "_reference_" in node.name()
+            nodeInfo['reference'] = "_reference_" in nodeName
+            # Update size if not cropped:
+            if not self.cropToImageBounds.isChecked():
+                nodeInfo['width'] = document.width()
+                nodeInfo['height'] = document.height()
+                nodeInfo['position'] = [ document.width() / 2, document.height() / 2 ]
 
             # translate blending mode to OCA
-            try:
-                if ocaLib.OCABlendingModes[nodeInfo['blendingMode']]:
-                    nodeInfo['blendingMode'] = ocaLib.OCABlendingModes[nodeInfo['blendingMode']]
-            except KeyError:
+            if nodeInfo['blendingMode'] in ocaLib.OCABlendingModes:
+                nodeInfo['blendingMode'] = ocaLib.OCABlendingModes[nodeInfo['blendingMode']]
+            else:
                 nodeInfo['blendingMode'] = 'normal'
 
             # if it's a group
             if node.type() == 'grouplayer':
-                newDir = os.path.join(parentDir, node.name())
+                newDir = os.path.join(parentDir, nodeName)
                 self.mkdir(newDir)
             # if not a group
             else:
@@ -382,9 +387,9 @@ class UIExportAnim(object):
         return nodes
 
     def _exportNode(self, document, node, nodeInfo, fileFormat, parentDir):
-        nodeName = node.name()
+        nodeName = node.name().strip()
 
-        self.progressdialog.setLabelText(i18n("Exporting") + " " + node.name()) # pylint: disable=undefined-variable
+        self.progressdialog.setLabelText(i18n("Exporting") + " " + nodeName) # pylint: disable=undefined-variable
 
         _fileFormat = fileFormat
         if '[jpeg]' in nodeName:
@@ -397,7 +402,7 @@ class UIExportAnim(object):
         frame = self.docInfo['startTime']
 
         if node.animated() or node.type() == 'grouplayer':
-            nodeDir = parentDir + '/' + node.name()
+            nodeDir = parentDir + '/' + nodeName
             prevFrameNumber = -1
             self.mkdir(nodeDir)
             while frame <= self.docInfo['endTime']:
@@ -431,7 +436,7 @@ class UIExportAnim(object):
             frameInfo = DuKRIF_json.createKeyframeInfo("_blank", "", frameNumber)
             return frameInfo
 
-        imageName = '{0}_{1}'.format( node.name(), DuKRIF_utils.intToStr(frameNumber))
+        imageName = '{0}_{1}'.format( node.name().strip(), DuKRIF_utils.intToStr(frameNumber))
         imagePath = '{0}/{1}.{2}'.format( parentDir, imageName, fileFormat)
         imageFileName = imageFileName = self.getAbsolutePath(imagePath)
 

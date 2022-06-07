@@ -20,7 +20,7 @@
 #    along with DuExportAnim. If not, see <http://www.gnu.org/licenses/>.
 
 import krita # pylint: disable=import-error
-from . import uiexportanim
+from .uiexportanim import UIExportAnim
 
 class OCAExport(krita.Extension):
 
@@ -36,5 +36,5 @@ class OCAExport(krita.Extension):
         action.triggered.connect(self.initialize)
 
     def initialize(self):
-        self.uiexportanim = uiexportanim.UIExportAnim()
+        self.uiexportanim = UIExportAnim()
         self.uiexportanim.initialize()

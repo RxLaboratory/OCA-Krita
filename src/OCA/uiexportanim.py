@@ -214,6 +214,8 @@ class UIExportAnim(object):
         # Collect doc info
         self.docInfo = DuKRIF_json.getDocInfo(document)
         self.docInfo['ocaVersion'] = self.ocaVersion
+        if self.docInfo['name'] == "":
+            self.docInfo['name'] = "Document"
         documentDir = self.docInfo['name']
         self.mkdir(documentDir)
 

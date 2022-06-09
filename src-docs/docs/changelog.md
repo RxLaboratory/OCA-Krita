@@ -4,6 +4,8 @@
 
 - Fixed export size and position when exporting to document size (without cropping to layer size).
 - Fixed filename issues when some layer names start or end with a space.
+- Fixed missing subfolder when exporting from an untitled document
+- Fixed relative paths for the frames starting from the folder instead of the subfolder.
 
 ## 1.2.0
 

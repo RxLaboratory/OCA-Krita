@@ -1,48 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
-     <loc>http://rainboxlab.org/index.html</loc>
-     <lastmod>2022-06-07</lastmod>
-     <changefreq>daily</changefreq>
+         <loc>https://oca-krita.rxlab.guide/index.html</loc>
+         <lastmod>2022-06-09</lastmod>
+         <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>http://rainboxlab.org/install.html</loc>
-     <lastmod>2022-06-07</lastmod>
-     <changefreq>daily</changefreq>
+         <loc>https://oca-krita.rxlab.guide/blending-modes.html</loc>
+         <lastmod>2022-06-09</lastmod>
+         <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>http://rainboxlab.org/layer-tags.html</loc>
-     <lastmod>2022-06-07</lastmod>
-     <changefreq>daily</changefreq>
+         <loc>https://oca-krita.rxlab.guide/changelog.html</loc>
+         <lastmod>2022-06-09</lastmod>
+         <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>http://rainboxlab.org/blending-modes.html</loc>
-     <lastmod>2022-06-07</lastmod>
-     <changefreq>daily</changefreq>
+         <loc>https://oca-krita.rxlab.guide/install.html</loc>
+         <lastmod>2022-06-09</lastmod>
+         <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>http://rainboxlab.org/changelog.html</loc>
-     <lastmod>2022-06-07</lastmod>
-     <changefreq>daily</changefreq>
+         <loc>https://oca-krita.rxlab.guide/layer-tags.html</loc>
+         <lastmod>2022-06-09</lastmod>
+         <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>http://rainboxlab.org/licenses/gnu-gpl.html</loc>
-     <lastmod>2022-06-07</lastmod>
-     <changefreq>daily</changefreq>
+         <loc>https://oca-krita.rxlab.guide/licenses/gfdl.html</loc>
+         <lastmod>2022-06-09</lastmod>
+         <changefreq>daily</changefreq>
     </url>
     <url>
-     <loc>http://rainboxlab.org/licenses/gfdl.html</loc>
-     <lastmod>2022-06-07</lastmod>
-     <changefreq>daily</changefreq>
-    </url>
-    <url>
-     <loc></loc>
-     
-     <changefreq>daily</changefreq>
-    </url>
-    <url>
-     <loc></loc>
-     
-     <changefreq>daily</changefreq>
+         <loc>https://oca-krita.rxlab.guide/licenses/gnu-gpl.html</loc>
+         <lastmod>2022-06-09</lastmod>
+         <changefreq>daily</changefreq>
     </url>
 </urlset>

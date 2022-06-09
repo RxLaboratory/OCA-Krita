@@ -4,7 +4,7 @@
 
 It is able to export all animation keyframes from a Krita document, keeping the layer structure, blending modes, and a lot of other information. This *OCA* format can then be imported in another application like *Adobe After Effects* or [*Blender*](http://blender.org).
 
-The documentation about *OCA* is available on [oca-docs.rainboxlab.org](http://oca-docs.rainboxlab.org).
+The documentation about *OCA* is available on [oca.rxlab.guide](http://oca.rxlab.guide).
 
 This is the *OCA* exporter for Krita.
 

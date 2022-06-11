@@ -3,40 +3,40 @@ Exports Animation keyframes from Krita to [OCA](https://github.com/Rainbox-dev/O
 
 This format can then be imported in After Effects (using [*DuIO*](https://rainboxlab.org/tools/duio/) for example) or any other software with just a little bit of development.
 
-## Install
+[![Krita](https://img.shields.io/badge/Krita-Linux%20|%20Win%20|%20Mac-informational?color=lightgrey&logo=krita)](#) [![GitHub](https://img.shields.io/github/license/RxLaboratory/OCA-Krita?color=lightgrey)](LICENSE.md)
 
-This plugin is installed the same way as other Krita plugins.
+<!-- status -->
+The status block
+<!-- end:status -->
 
-### Using the plugin importer
+## What's this?
 
-First, if you're using the source code instead of a zipped release, you'll have to zip all the files and folders in the [src](src/) subfolder (the *OCA.desktop* file and the *OCA* folder).
-
-1. Open the Script Importer plugin in Krita via `Tools ‣ Scripts ‣ Import Python Plugin...`
-2. Locate and import the *OCA.zip* file.
-3. Restart Krita
-4. Go to `Settings ‣ Configure Krita...`
-5. In the `Python Plugin Manager` tab, enable the *OCA* plugin
-6. Restart Krita
-
-### Manually
-
-1. Copy (or symlink if you're developping) both the *OCA.desktop* file and the *OCA* folder to the *pykrita* subfolder of the Krita resources folder.
-2. Start Krita
-3. Go to `Settings ‣ Configure Krita...`
-4. In the `Python Plugin Manager` tab, enable the *OCA* plugin
-5. Restart Krita
-
-Note: To find your resources folder start Krita and click the `Settings ‣ Manage Resources…` menu item. This will open a dialog box. Click the `Open Resources Folder` button.
-
-## Features
-
-See the [OCA](https://github.com/Rainbox-dev/OCA) format specifications.
+See the [OCA](https://github.com/Rainbox-dev/OCA) format specifications for more information about the OCA format.
 
 Note that vector layers are not supported by *OCA* for Krita (yet).
+
+**Documentation:**  
+[![Website](https://img.shields.io/badge/website-RxLab-informational)](http://rxlaboratory.org/tools/oca-for-krita) [![Doc](https://img.shields.io/badge/documentation-oca-krita.rxlab.guide-informational)](http://duik.rxlab.guide)
+
+<!-- join -->
+The community blocks
+<!-- end:join -->
+
+## Current status
+
+<!-- statistics -->
+Download count, download count for latest release, number of issues, commit activity
+<!-- end:statistics -->  
 
 ## Development
 
 ### Dependencies
 
 - [DuKRIF](https://github.com/Rainbox-dev/DuKRIF) >= 0.0.1  
-Copy or symlink the *DuKRIF* module inside `src/duexportanim`
+Copy or symlink the *DuKRIF* module inside `src/OCA`
+- [OCA](https://github.com/Rainbox-dev/OCA) >= 1.1.0  
+Copy or symlink the *ocapy* module inside `src/OCA`
+
+<!-- contribution -->
+Call for contributions & community block
+<!-- end:contribution -->

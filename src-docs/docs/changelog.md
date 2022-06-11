@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.2
+
+- fixed "\_merge\_" tag with the bottom layer of a group not being exported
+
 ## 1.2.1
 
 - Fixed export size and position when exporting to document size (without cropping to layer size).

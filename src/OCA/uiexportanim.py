@@ -251,11 +251,13 @@ class UIExportAnim(object):
 
         self.progressdialog.close()
 
+        document.setBatchmode(False)
+
         # close document
         document.close()
 
         Application.setBatchmode(False) # pylint: disable=undefined-variable
-        document.setBatchmode(False)
+        
 
     def _end_export(self):
         # Re-enable all layers
@@ -326,6 +328,8 @@ class UIExportAnim(object):
 
         nodes = []
 
+        print("OCA >> Listing children of: " + parentNode.name())
+
         for i, node in enumerate(parentNode.childNodes()):
 
             if (self.progressdialog.wasCanceled()):
@@ -334,6 +338,8 @@ class UIExportAnim(object):
 
             newDir = ''
             nodeName = node.name().strip()
+
+            print("OCA >> Loading node: " + nodeName)
 
             # ignore filters
             if (not self.exportFilterLayersCheckBox.isChecked()
@@ -354,8 +360,13 @@ class UIExportAnim(object):
             merge = "_merge_" in nodeName
 
             if merge:
+                print("OCA >> Merging node: " + nodeName)
                 DuKRIF_nodes.disableIgnoreNodes(node)
                 node = DuKRIF_nodes.flattenNode(document, node, i, parentNode)
+                print(node.type())
+                nodeName = nodeName.replace("_merge_","").strip()
+                node.setName( nodeName )
+                print("OCA >> Merged and renamed node: " + node.name())
 
             nodeInfo = DuKRIF_json.getNodeInfo(document, node)
             nodeInfo['fileType'] = fileFormat
@@ -372,25 +383,24 @@ class UIExportAnim(object):
             else:
                 nodeInfo['blendingMode'] = 'normal'
 
-            # if it's a group
-            if node.type() == 'grouplayer':
+            # if there are children and not merged, export them
+            if node.childNodes() and not merge:
                 newDir = os.path.join(parentDir, nodeName)
                 self.mkdir(newDir)
+                childNodes = self._exportLayers(document, node, fileFormat, newDir)
+                nodeInfo['childLayers'] = childNodes
             # if not a group
             else:
                 self._exportNode(document, node, nodeInfo, fileFormat, parentDir)
             
-            # if there are children and not merged, export them
-            if node.childNodes() and not merge:
-                childNodes = self._exportLayers(document, node, fileFormat, newDir)
-                nodeInfo['childLayers'] = childNodes
-
             nodes.append(nodeInfo)
 
         return nodes
 
     def _exportNode(self, document, node, nodeInfo, fileFormat, parentDir):
         nodeName = node.name().strip()
+
+        print("OCA >> Exporting node: " + nodeName + " (" + node.type() + ")")
 
         self.progressdialog.setLabelText(i18n("Exporting") + " " + nodeName) # pylint: disable=undefined-variable
 

@@ -23,6 +23,7 @@
 from . import exportanimdialog
 from .ocapy import oca as ocaLib
 from .dukrif import (DuKRIF_utils, DuKRIF_animation, DuKRIF_json, DuKRIF_io, DuKRIF_nodes) # pylint: disable=import-error
+from .config import VERSION, OCA_VERSION
 from PyQt5.QtCore import (Qt, QRect) # pylint: disable=no-name-in-module # pylint: disable=import-error
 from PyQt5.QtWidgets import (QFormLayout, QListWidget, QHBoxLayout, # pylint: disable=no-name-in-module # pylint: disable=import-error
                              QDialogButtonBox, QVBoxLayout, QFrame,
@@ -38,8 +39,8 @@ class UIExportAnim(object):
     disabled_layers = []
 
     def __init__(self):
-        self.version = "1.2.1"
-        self.ocaVersion = "1.1.0"
+        self.version = VERSION
+        self.ocaVersion = OCA_VERSION
 
         self.mainDialog = exportanimdialog.ExportAnimDialog()
         self.mainLayout = QVBoxLayout(self.mainDialog)
@@ -258,7 +259,6 @@ class UIExportAnim(object):
 
         Application.setBatchmode(False) # pylint: disable=undefined-variable
         
-
     def _end_export(self):
         # Re-enable all layers
         for node in self.disabled_layers:

@@ -17,7 +17,7 @@ See the [OCA](https://github.com/Rainbox-dev/OCA) format specifications for more
 Note that vector layers are not supported by *OCA* for Krita (yet).
 
 **Documentation:**  
-[![Website](https://img.shields.io/badge/website-RxLab-informational)](http://rxlaboratory.org/tools/oca-for-krita) [![Doc](https://img.shields.io/badge/documentation-oca-krita.rxlab.guide-informational)](http://duik.rxlab.guide)
+[![Website](https://img.shields.io/badge/website-RxLab-informational)](http://rxlaboratory.org/tools/oca-for-krita) [![Doc](https://img.shields.io/badge/documentation-oca%2Dkrita.rxlab.guide-informational)](http://oca-krita.rxlab.guide)
 
 <!-- join -->
 ## Join the community

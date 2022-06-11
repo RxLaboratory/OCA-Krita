@@ -41,15 +41,6 @@ We need your support to release our free tools. You can [donate](donate.rxlab.in
 **Statistics:**  
 [![GitHub all releases](https://img.shields.io/github/downloads/RxLaboratory/OCA-Krita/total)](https://github.com/RxLaboratory/OCA-Krita/releases) [![GitHub release (latest by SemVer)](https://img.shields.io/github/downloads/RxLaboratory/OCA-Krita/latest/total?sort=semver)](https://github.com/RxLaboratory/OCA-Krita/releases) [![GitHub issues](https://img.shields.io/github/issues-raw/RxLaboratory/OCA-Krita)](https://github.com/RxLaboratory/OCA-Krita/issues) [![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/RxLaboratory/OCA-Krita?color=lightgrey)](https://github.com/RxLaboratory/OCA-Krita/issues?q=is%3Aissue+is%3Aclosed) [![GitHub commit activity](https://img.shields.io/github/commit-activity/m/RxLaboratory/OCA-Krita)](https://github.com/RxLaboratory/OCA-Krita/graphs/commit-activity)<!-- end:statistics -->  
 
-## Development
-
-### Dependencies
-
-- [DuKRIF](https://github.com/Rainbox-dev/DuKRIF) >= 0.0.1  
-Copy or symlink the *DuKRIF* module inside `src/OCA`
-- [OCA](https://github.com/Rainbox-dev/OCA) >= 1.1.0  
-Copy or symlink the *ocapy* module inside `src/OCA`
-
 <!-- contribution -->
 ## Contribution and development
 
@@ -57,3 +48,10 @@ We're always in need for translations, code, documentation, examples, tutorials,
 
 [![Discord](https://img.shields.io/discord/480782642825134100)](http://chat.rxlab.info) [![Contributing](https://img.shields.io/badge/contributing%20guide-docs.rxlab.io-informational.svg)](http://docs.rxlab.io) [![Contributor Covenant](https://img.shields.io/badge/contributor%20covenant-2.1-4baaaa.svg)](CODE_OF_CONDUCT.md) [![GitHub contributors](https://img.shields.io/github/contributors-anon/RxLaboratory/OCA-Krita)](https://github.com/RxLaboratory/OCA-Krita/graphs/contributors)
 <!-- end:contribution -->
+
+### Dependencies
+
+- [DuKRIF](https://github.com/Rainbox-dev/DuKRIF) >= 0.0.1  
+Copy or symlink the *DuKRIF* module inside `src/OCA`
+- [OCA](https://github.com/Rainbox-dev/OCA) >= 1.1.0  
+Copy or symlink the *ocapy* module inside `src/OCA`

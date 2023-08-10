@@ -1,26 +1,29 @@
-# DuExportAnim - Duduf Export Animation for Krita
-# Copyright (c) 2020 - Nicolas Dufresne, Rainbox Laboratory
+# OCA Exporter for Krita
+# Copyright (c) 2020-2022 - Nicolas Dufresne, RxLaboratory and contributors
 # This script is licensed under the GNU General Public License v3
 # https://rainboxlab.org
 # 
-# DuExportAnim was made using "Export Layers" for Krita, which is licensed CC 0 1.0  - public domain
+# OCA was made using "Export Layers" for Krita, which is licensed CC 0 1.0  - public domain
 #
-# This file is part of DuExportAnim.
-#   DuExportAnim is free software: you can redistribute it and/or modify
+# This file is part of OCA.
+#   OCA is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
 #    the Free Software Foundation, either version 3 of the License, or
 #    (at your option) any later version.
 #
-#    DuExportAnim is distributed in the hope that it will be useful,
+#    OCA is distributed in the hope that it will be useful,
 #    but WITHOUT ANY WARRANTY; without even the implied warranty of
 #    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #    GNU General Public License for more details.
 #
 #    You should have received a copy of the GNU General Public License
-#    along with DuExportAnim. If not, see <http://www.gnu.org/licenses/>.
+#    along with OCA. If not, see <http://www.gnu.org/licenses/>.
 
-from . import (exportanimdialog, ocaLib)
+
+from . import exportanimdialog
+from .ocapy import oca as ocaLib
 from .dukrif import (DuKRIF_utils, DuKRIF_animation, DuKRIF_json, DuKRIF_io, DuKRIF_nodes) # pylint: disable=import-error
+from .config import VERSION, OCA_VERSION
 from PyQt5.QtCore import (Qt, QRect) # pylint: disable=no-name-in-module # pylint: disable=import-error
 from PyQt5.QtWidgets import (QFormLayout, QListWidget, QHBoxLayout, # pylint: disable=no-name-in-module # pylint: disable=import-error
                              QDialogButtonBox, QVBoxLayout, QFrame,
@@ -36,8 +39,8 @@ class UIExportAnim(object):
     disabled_layers = []
 
     def __init__(self):
-        self.version = "1.2.0"
-        self.ocaVersion = "1.1.0"
+        self.version = VERSION
+        self.ocaVersion = OCA_VERSION
 
         self.mainDialog = exportanimdialog.ExportAnimDialog()
         self.mainLayout = QVBoxLayout(self.mainDialog)
@@ -212,6 +215,8 @@ class UIExportAnim(object):
         # Collect doc info
         self.docInfo = DuKRIF_json.getDocInfo(document)
         self.docInfo['ocaVersion'] = self.ocaVersion
+        if self.docInfo['name'] == "":
+            self.docInfo['name'] = "Document"
         documentDir = self.docInfo['name']
         self.mkdir(documentDir)
 
@@ -247,12 +252,13 @@ class UIExportAnim(object):
 
         self.progressdialog.close()
 
+        document.setBatchmode(False)
+
         # close document
         document.close()
 
         Application.setBatchmode(False) # pylint: disable=undefined-variable
-        document.setBatchmode(False)
-
+        
     def _end_export(self):
         # Re-enable all layers
         for node in self.disabled_layers:
@@ -322,6 +328,8 @@ class UIExportAnim(object):
 
         nodes = []
 
+        print("OCA >> Listing children of: " + parentNode.name())
+
         for i, node in enumerate(parentNode.childNodes()):
 
             if (self.progressdialog.wasCanceled()):
@@ -329,7 +337,9 @@ class UIExportAnim(object):
                 break
 
             newDir = ''
-            nodeName = node.name()
+            nodeName = node.name().strip()
+
+            print("OCA >> Loading node: " + nodeName)
 
             # ignore filters
             if (not self.exportFilterLayersCheckBox.isChecked()
@@ -350,41 +360,49 @@ class UIExportAnim(object):
             merge = "_merge_" in nodeName
 
             if merge:
-                self._disable_ignore_nodes(node)
+                print("OCA >> Merging node: " + nodeName)
+                DuKRIF_nodes.disableIgnoreNodes(node)
                 node = DuKRIF_nodes.flattenNode(document, node, i, parentNode)
+                print(node.type())
+                nodeName = nodeName.replace("_merge_","").strip()
+                node.setName( nodeName )
+                print("OCA >> Merged and renamed node: " + node.name())
 
             nodeInfo = DuKRIF_json.getNodeInfo(document, node)
             nodeInfo['fileType'] = fileFormat
-            nodeInfo['reference'] = "_reference_" in node.name()
+            nodeInfo['reference'] = "_reference_" in nodeName
+            # Update size if not cropped:
+            if not self.cropToImageBounds.isChecked():
+                nodeInfo['width'] = document.width()
+                nodeInfo['height'] = document.height()
+                nodeInfo['position'] = [ document.width() / 2, document.height() / 2 ]
 
             # translate blending mode to OCA
-            try:
-                if ocaLib.OCABlendingModes[nodeInfo['blendingMode']]:
-                    nodeInfo['blendingMode'] = ocaLib.OCABlendingModes[nodeInfo['blendingMode']]
-            except KeyError:
+            if nodeInfo['blendingMode'] in ocaLib.OCABlendingModes:
+                nodeInfo['blendingMode'] = ocaLib.OCABlendingModes[nodeInfo['blendingMode']]
+            else:
                 nodeInfo['blendingMode'] = 'normal'
 
-            # if it's a group
-            if node.type() == 'grouplayer':
-                newDir = os.path.join(parentDir, node.name())
+            # if there are children and not merged, export them
+            if node.childNodes() and not merge:
+                newDir = os.path.join(parentDir, nodeName)
                 self.mkdir(newDir)
+                childNodes = self._exportLayers(document, node, fileFormat, newDir)
+                nodeInfo['childLayers'] = childNodes
             # if not a group
             else:
                 self._exportNode(document, node, nodeInfo, fileFormat, parentDir)
             
-            # if there are children and not merged, export them
-            if node.childNodes() and not merge:
-                childNodes = self._exportLayers(document, node, fileFormat, newDir)
-                nodeInfo['childLayers'] = childNodes
-
             nodes.append(nodeInfo)
 
         return nodes
 
     def _exportNode(self, document, node, nodeInfo, fileFormat, parentDir):
-        nodeName = node.name()
+        nodeName = node.name().strip()
 
-        self.progressdialog.setLabelText(i18n("Exporting") + " " + node.name()) # pylint: disable=undefined-variable
+        print("OCA >> Exporting node: " + nodeName + " (" + node.type() + ")")
+
+        self.progressdialog.setLabelText(i18n("Exporting") + " " + nodeName) # pylint: disable=undefined-variable
 
         _fileFormat = fileFormat
         if '[jpeg]' in nodeName:
@@ -397,7 +415,7 @@ class UIExportAnim(object):
         frame = self.docInfo['startTime']
 
         if node.animated() or node.type() == 'grouplayer':
-            nodeDir = parentDir + '/' + node.name()
+            nodeDir = parentDir + '/' + nodeName
             prevFrameNumber = -1
             self.mkdir(nodeDir)
             while frame <= self.docInfo['endTime']:
@@ -431,7 +449,7 @@ class UIExportAnim(object):
             frameInfo = DuKRIF_json.createKeyframeInfo("_blank", "", frameNumber)
             return frameInfo
 
-        imageName = '{0}_{1}'.format( node.name(), DuKRIF_utils.intToStr(frameNumber))
+        imageName = '{0}_{1}'.format( node.name().strip(), DuKRIF_utils.intToStr(frameNumber))
         imagePath = '{0}/{1}.{2}'.format( parentDir, imageName, fileFormat)
         imageFileName = imageFileName = self.getAbsolutePath(imagePath)
 
@@ -487,16 +505,6 @@ class UIExportAnim(object):
         else:
             self.exportFilterLayersCheckBox.setChecked(False)
             self.exportReferenceCheckbox.setChecked(True)
-
-    def _disable_ignore_nodes(self, parentNode, disable=True):
-        for node in parentNode.childNodes():
-            if node.visible():
-                if '_ignore_' in node.name():
-                    node.setVisible(not disable)
-                    self.disabled_layers.append(node)
-
-                if node.type() == 'grouplayer':
-                    self._disable_ignore_nodes(node)
 
     def _disable_reference_nodes(self, parentNode, disable=True):
         for node in parentNode.childNodes():

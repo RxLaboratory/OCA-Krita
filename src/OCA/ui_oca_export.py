@@ -1,51 +1,43 @@
-# OCA Exporter for Krita
-# Copyright (c) 2020-2023 - Nicolas Dufresne, RxLaboratory and contributors
-# This script is licensed under the GNU General Public License v3
-# https://rxlaboratory.org
-# 
-# OCA was made using "Export Layers" for Krita, which is licensed CC 0 1.0  - public domain
-#
-# This file is part of OCA.
-#   OCA is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    OCA is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
-#
-#    You should have received a copy of the GNU General Public License
-#    along with OCA. If not, see <http://www.gnu.org/licenses/>.
-
-
-from . import exportanimdialog
-from . import utils
-from . import oca_krita
-from .ocapy import oca as ocaLib
-from .config import VERSION, OCA_VERSION
-from PyQt5.QtCore import (Qt, QRect) # pylint: disable=no-name-in-module # pylint: disable=import-error
-from PyQt5.QtWidgets import (QFormLayout, QListWidget, QHBoxLayout, # pylint: disable=no-name-in-module # pylint: disable=import-error
-                             QDialogButtonBox, QVBoxLayout, QFrame,
-                             QPushButton, QAbstractScrollArea, QLineEdit,
-                             QMessageBox, QFileDialog, QCheckBox, QSpinBox,
-                             QComboBox, QRadioButton, QProgressDialog, QAbstractItemView)
 import os
 import json
 import krita # pylint: disable=import-error
+from PyQt5.QtCore import (Qt, QRect) # pylint: disable=no-name-in-module # pylint: disable=import-error
+from PyQt5.QtWidgets import ( # pylint: disable=no-name-in-module # pylint: disable=import-error
+    QFormLayout,
+    QListWidget,
+    QHBoxLayout, 
+    QDialogButtonBox,
+    QVBoxLayout,
+    QFrame,
+    QPushButton,
+    QAbstractScrollArea,
+    QLineEdit,
+    QMessageBox,
+    QFileDialog,
+    QCheckBox,
+    QSpinBox,
+    QRadioButton,
+    QProgressDialog,
+    QAbstractItemView,
+    QDialog
+    )
 
+from . import utils
+from . import oca_krita
+from . import oca
+from .config import VERSION, OCA_VERSION
 
-class UIExportAnim(object):
+class OCAExportDialog(QDialog):
 
     disabled_layers = []
 
-    def __init__(self):
+    def __init__(self, parent = None):
+        super(OCAExportDialog, self).__init__(parent)
+
         self.version = VERSION
         self.ocaVersion = OCA_VERSION
 
-        self.mainDialog = exportanimdialog.ExportAnimDialog()
-        self.mainLayout = QVBoxLayout(self.mainDialog)
+        self.mainLayout = QVBoxLayout(self)
         self.formLayout = QFormLayout()
         self.resSpinBoxLayout = QFormLayout()
         self.documentLayout = QVBoxLayout()
@@ -87,11 +79,11 @@ class UIExportAnim(object):
         self.widgetDocuments.currentRowChanged.connect(self._setResolution)
         self.refreshButton.clicked.connect(self.refreshButtonClicked)
         self.buttonBox.accepted.connect(self.confirmButton)
-        self.buttonBox.rejected.connect(self.mainDialog.close)
+        self.buttonBox.rejected.connect(self.close)
         self.cropToImageBounds.stateChanged.connect(self._toggleCropSize)
         self.flattenImageCheckbox.stateChanged.connect(self._toggleFlatten)
 
-        self.mainDialog.setWindowModality(Qt.NonModal)
+        self.setWindowModality(Qt.NonModal)
         self.widgetDocuments.setSizeAdjustPolicy(
             QAbstractScrollArea.AdjustToContents)
         self.widgetDocuments.setSelectionMode(QAbstractItemView.MultiSelection)
@@ -145,11 +137,15 @@ class UIExportAnim(object):
         self.mainLayout.addWidget(self.line)
         self.mainLayout.addWidget(self.buttonBox)
 
-        self.mainDialog.resize(500, 300)
-        self.mainDialog.setWindowTitle(i18n("OCA Export ") + " v" + self.version) # pylint: disable=undefined-variable
-        self.mainDialog.setSizeGripEnabled(True)
-        self.mainDialog.show()
-        self.mainDialog.activateWindow()
+        self.resize(500, 300)
+        self.setWindowTitle(i18n("OCA Export ") + " v" + self.version) # pylint: disable=undefined-variable
+        self.setSizeGripEnabled(True)
+        self.show()
+        self.activateWindow()
+
+    def closeEvent(self, event):
+        """Accept close"""
+        event.accept()
 
     def loadDocuments(self):
         self.widgetDocuments.clear()
@@ -173,7 +169,7 @@ class UIExportAnim(object):
             for path in selectedPaths if path == document.fileName()
         ]
 
-        self.msgBox = QMessageBox(self.mainDialog)
+        self.msgBox = QMessageBox(self)
         if not selectedDocuments:
             self.msgBox.setText(i18n("Select at least one document.")) # pylint: disable=undefined-variable
         elif not self.directoryTextField.text():
@@ -379,10 +375,7 @@ class UIExportAnim(object):
                 nodeInfo['position'] = [ document.width() / 2, document.height() / 2 ]
 
             # translate blending mode to OCA
-            if nodeInfo['blendingMode'] in ocaLib.OCABlendingModes:
-                nodeInfo['blendingMode'] = ocaLib.OCABlendingModes[nodeInfo['blendingMode']]
-            else:
-                nodeInfo['blendingMode'] = 'normal'
+            nodeInfo['blendingMode'] = oca_krita.BLENDING_MODES.get( nodeInfo['blendingMode'], 'normal' )
 
             # if there are children and not merged, export them
             if node.childNodes() and not merge:
@@ -475,7 +468,7 @@ class UIExportAnim(object):
 
     def _selectDir(self):
         directory = QFileDialog.getExistingDirectory(
-            self.mainDialog,
+            self,
             i18n("Select a Folder"), # pylint: disable=undefined-variable
             os.path.expanduser("~"),
             QFileDialog.ShowDirsOnly)

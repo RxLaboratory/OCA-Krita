@@ -20,7 +20,7 @@
 #    along with OCA. If not, see <http://www.gnu.org/licenses/>.
 
 import krita # pylint: disable=import-error
-from .uiexportanim import UIExportAnim
+from .ui_oca_export import OCAExportDialog
 
 class OCAExport(krita.Extension):
 
@@ -36,5 +36,5 @@ class OCAExport(krita.Extension):
         action.triggered.connect(self.initialize)
 
     def initialize(self):
-        self.uiexportanim = UIExportAnim()
-        self.uiexportanim.initialize()
+        self.OCAExportDialog = OCAExportDialog()
+        self.OCAExportDialog.initialize()

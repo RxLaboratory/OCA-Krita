@@ -1,4 +1,4 @@
-# OCA Exporter for Krita
+# OCA for Krita
 # Copyright (c) 2020-2023 - Nicolas Dufresne, RxLaboratory and contributors
 # This script is licensed under the GNU General Public License v3
 # https://rxlaboratory.org

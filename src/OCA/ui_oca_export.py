@@ -1,7 +1,6 @@
 import os
-import json
 import krita # pylint: disable=import-error
-from PyQt5.QtCore import (Qt, QRect) # pylint: disable=no-name-in-module # pylint: disable=import-error
+from PyQt5.QtCore import Qt # pylint: disable=no-name-in-module # pylint: disable=import-error
 from PyQt5.QtWidgets import ( # pylint: disable=no-name-in-module # pylint: disable=import-error
     QFormLayout,
     QListWidget,
@@ -17,15 +16,12 @@ from PyQt5.QtWidgets import ( # pylint: disable=no-name-in-module # pylint: disa
     QCheckBox,
     QSpinBox,
     QRadioButton,
-    QProgressDialog,
     QAbstractItemView,
     QDialog
     )
 
-from . import utils
-from . import oca_krita
-from . import oca
-from .config import VERSION, OCA_VERSION
+from . import oca_krita as oca
+from .config import VERSION
 
 class OCAExportDialog(QDialog):
 
@@ -35,7 +31,7 @@ class OCAExportDialog(QDialog):
         super(OCAExportDialog, self).__init__(parent)
 
         self.version = VERSION
-        self.ocaVersion = OCA_VERSION
+        self.ocaVersion = oca.VERSION
 
         self.mainLayout = QVBoxLayout(self)
         self.formLayout = QFormLayout()
@@ -69,10 +65,6 @@ class OCAExportDialog(QDialog):
 
         self.kritaInstance = krita.Krita.instance()
         self.documentsList = []
-        # Store Animation info whem exporting
-        self.docInfo = {}
-        # Store Export dir
-        self.exportDir = ''
 
         self.directoryTextField.setReadOnly(True)
         self.directoryDialogButton.clicked.connect(self._selectDir)
@@ -180,291 +172,19 @@ class OCAExportDialog(QDialog):
             self.msgBox.setText(i18n("All Documents have been exported.")) # pylint: disable=undefined-variable
         self.msgBox.exec_()
 
-    def mkdir(self, directory):
-        target_directory = self.getAbsolutePath(directory)
-        if (os.path.exists(target_directory)
-                and os.path.isdir(target_directory)):
-            return
-
-        try:
-            os.makedirs(target_directory)
-        except OSError as e:
-            raise e
-
-    def getAbsolutePath(self, directory):
-        return self.directoryTextField.text() + '/' +  self.getRelativePath(directory)
-
-    def getRelativePath(self, directory):
-        return self.exportDir + '/' +  directory
-
     def export(self, document):
-        Application.setBatchmode(True) # pylint: disable=undefined-variable
 
-        # Let's duplicate the document first
-        document = document.clone()
-
-        document.setBatchmode(True)
-
-        documentName = document.fileName() if document.fileName() else 'Untitled'  # noqa: E501
-        fileName, extension = os.path.splitext(os.path.basename(documentName)) # pylint: disable=unused-variable
-        self.exportDir = fileName + '.oca'
-        self.mkdir('')
-
-        # Collect doc info
-        self.docInfo = oca_krita.getDocInfo(document)
-        self.docInfo['ocaVersion'] = self.ocaVersion
-        if self.docInfo['name'] == "":
-            self.docInfo['name'] = "Document"
-        documentDir = self.docInfo['name']
-        self.mkdir(documentDir)
-
-        if not self.fullClipRadioButton.isChecked():
-            self.docInfo['startTime'] = document.playBackStartTime()
-            self.docInfo['endTime'] = document.playBackEndTime()
-            
-        self.progressdialog = QProgressDialog("Exporting animation...", "Cancel", 0, self.docInfo['endTime'] - self.docInfo['startTime'])
-        self.progressdialog.setWindowModality(Qt.WindowModality.WindowModal)
-
-        if self.flattenImageCheckbox.isChecked():
-            nodeInfo = self._exportFlattened(
-                document,
-                #self.formatsComboBox.currentText(),
-                'png',
-                documentDir
-            )
-            self.docInfo['layers'].append(nodeInfo)
-        else:
-            nodes = self._exportLayers(
-                document,
-                document.rootNode(),
-                #self.formatsComboBox.currentText(),
-                'png',
-                documentDir
-            )
-            self.docInfo['layers'] = nodes
-
-        # Write doc info
-        infoFile = open('{0}.oca'.format(self.getAbsolutePath(fileName)),  "w")
-        infoFile.write( json.dumps(self.docInfo, indent=4) )
-        infoFile.close()
-
-        self.progressdialog.close()
-
-        document.setBatchmode(False)
-
-        # close document
-        document.close()
-
-        Application.setBatchmode(False) # pylint: disable=undefined-variable
-        
-    def _end_export(self):
-        # Re-enable all layers
-        for node in self.disabled_layers:
-            node.setVisible(True)
-        self.disabled_layers = []
-
-    def _exportFlattened(self, document, fileFormat, parentDir):
-        """ This method exports a flattened image of the document for each keyframe of the animation. """
-
-        nodeInfo = oca_krita.createNodeInfo( self.docInfo['name'])
-        nodeInfo['fileType'] = fileFormat
-        nodeInfo['animated'] = True
-        nodeInfo['position'] = [ self.docInfo['width'] / 2, self.docInfo['height'] / 2 ]
-        nodeInfo['width'] = self.docInfo['width']
-        nodeInfo['height'] = self.docInfo['height']
-
-        frame = self.docInfo['startTime']
-        prevFrameNumber = -1
-
-        self._disable_ignore_nodes(document.rootNode())
-        if not self.exportReferenceCheckbox.isChecked():
-            self._disable_reference_nodes(document.rootNode())
-
-        while frame <= self.docInfo['endTime']:
-            self.progressdialog.setValue(frame)
-            if (self.progressdialog.wasCanceled()):
-                self._end_export()
-                break
-            if utils.krita.hasKeyframeAtTime(document.rootNode(), frame):
-                frameInfo = self._exportFlattenedFrame(document, fileFormat, frame, parentDir)
-                if prevFrameNumber >= 0:
-                    nodeInfo['frames'][-1]['duration'] = frame - prevFrameNumber
-                nodeInfo['frames'].append(frameInfo)
-                prevFrameNumber = frame
-            frame = frame + 1
-
-        # set the last frame duration
-        if len(nodeInfo['frames']) > 0:
-            f = nodeInfo['frames'][-1]
-            f['duration'] = document.fullClipRangeEndTime() - f['frameNumber']
-
-        return nodeInfo
-
-    def _exportFlattenedFrame(self, document, fileFormat, frameNumber, parentDir):
-
-        utils.krita.setCurrentFrame(document, frameNumber)
-
-        imageName = '{0}_{1}'.format( self.docInfo['name'], utils.str.intToStr(frameNumber))
-        imagePath = '{0}/{1}.{2}'.format( parentDir, imageName, fileFormat)
-        imageFileName = self.getAbsolutePath(imagePath)
-
-        succeed = utils.krita.exportDocument(document, imageFileName)
-        
-        if not succeed:
-            frameInfo = oca_krita.createKeyframeInfo("Export failed", "", frameNumber)
-        else:       
-            frameInfo = oca_krita.createKeyframeInfo(imageName, imagePath, frameNumber)
-            frameInfo['position'] = [ self.docInfo['width'] / 2, self.docInfo['height'] / 2 ]
-            frameInfo['width'] = self.docInfo['width']
-            frameInfo['height'] = self.docInfo['height']
-            
-        return frameInfo
-
-    def _exportLayers(self, document, parentNode, fileFormat, parentDir):
-        """ This method get all sub-nodes from the current node and export them in
-            the defined format."""
-
-        nodes = []
-
-        print("OCA >> Listing children of: " + parentNode.name())
-
-        for i, node in enumerate(parentNode.childNodes()):
-
-            if (self.progressdialog.wasCanceled()):
-                self._end_export()
-                break
-
-            newDir = ''
-            nodeName = node.name().strip()
-
-            print("OCA >> Loading node: " + nodeName)
-
-            # ignore filters
-            if (not self.exportFilterLayersCheckBox.isChecked()
-                  and 'filter' in node.type()):
-                continue
-            # ignore invisible
-            if (not self.exportInvisibleLayersCheckBox.isChecked()
-                  and not node.visible()):
-                continue
-            # ignore reference
-            if (not self.exportReferenceCheckbox.isChecked
-                  and "_reference_" in nodeName):
-                continue
-            # ignore _ignore_
-            if "_ignore_" in nodeName:
-                continue
-
-            merge = "_merge_" in nodeName
-
-            if merge:
-                print("OCA >> Merging node: " + nodeName)
-                utils.krita.disableNodes(node)
-                node = utils.krita.flattenNode(document, node, i, parentNode)
-                nodeName = nodeName.replace("_merge_","").strip()
-                node.setName( nodeName )
-                print("OCA >> Merged and renamed node: " + node.name())
-
-            nodeInfo = oca_krita.getNodeInfo(document, node)
-            nodeInfo['fileType'] = fileFormat
-            nodeInfo['reference'] = "_reference_" in nodeName
-            # Update size if not cropped:
-            if not self.cropToImageBounds.isChecked():
-                nodeInfo['width'] = document.width()
-                nodeInfo['height'] = document.height()
-                nodeInfo['position'] = [ document.width() / 2, document.height() / 2 ]
-
-            # translate blending mode to OCA
-            nodeInfo['blendingMode'] = oca_krita.BLENDING_MODES.get( nodeInfo['blendingMode'], 'normal' )
-
-            # if there are children and not merged, export them
-            if node.childNodes() and not merge:
-                newDir = os.path.join(parentDir, nodeName)
-                self.mkdir(newDir)
-                childNodes = self._exportLayers(document, node, fileFormat, newDir)
-                nodeInfo['childLayers'] = childNodes
-            # if not a group
-            else:
-                self._exportNode(document, node, nodeInfo, fileFormat, parentDir)
-            
-            nodes.append(nodeInfo)
-
-        return nodes
-
-    def _exportNode(self, document, node, nodeInfo, fileFormat, parentDir):
-        nodeName = node.name().strip()
-
-        print("OCA >> Exporting node: " + nodeName + " (" + node.type() + ")")
-
-        self.progressdialog.setLabelText(i18n("Exporting") + " " + nodeName) # pylint: disable=undefined-variable
-
-        _fileFormat = fileFormat
-        if '[jpeg]' in nodeName:
-            _fileFormat = 'jpeg'
-        elif '[png]' in nodeName:
-            _fileFormat = 'png'
-        elif '[exr]' in nodeName:
-            _fileFormat = 'exr'
-
-        frame = self.docInfo['startTime']
-
-        if node.animated() or node.type() == 'grouplayer':
-            nodeDir = parentDir + '/' + nodeName
-            prevFrameNumber = -1
-            self.mkdir(nodeDir)
-            while frame <= self.docInfo['endTime']:
-                self.progressdialog.setValue(frame)
-                if (self.progressdialog.wasCanceled()):
-                    self._end_export()
-                    break
-                if utils.krita.hasKeyframeAtTime(node, frame):
-                    frameInfo = self._exportNodeFrame(document, node, _fileFormat, frame, nodeDir)
-                    if prevFrameNumber >= 0:
-                        nodeInfo['frames'][-1]['duration'] = frame - prevFrameNumber
-                    nodeInfo['frames'].append(frameInfo)
-                    prevFrameNumber = frame
-                frame = frame + 1
-
-            # set the last frame duration
-            if len(nodeInfo['frames']) > 0:
-                f = nodeInfo['frames'][-1]
-                f['duration'] = document.fullClipRangeEndTime() - f['frameNumber']
-
-        else:
-            frameInfo = self._exportNodeFrame(document, node, _fileFormat, frame, parentDir)
-            frameInfo['duration'] = document.playBackEndTime() - document.playBackStartTime()
-            nodeInfo['frames'].append(frameInfo)
-
-    def _exportNodeFrame(self, document, node, fileFormat, frameNumber, parentDir):
-
-        utils.krita.setCurrentFrame(document, frameNumber)
-
-        if node.bounds().width() == 0:
-            frameInfo = oca_krita.createKeyframeInfo("_blank", "", frameNumber)
-            return frameInfo
-
-        imageName = '{0}_{1}'.format( node.name().strip(), utils.str.intToStr(frameNumber))
-        imagePath = '{0}/{1}.{2}'.format( parentDir, imageName, fileFormat)
-        imageFileName = imageFileName = self.getAbsolutePath(imagePath)
-
-        if self.cropToImageBounds.isChecked():
-            bounds = QRect()
-        else:
-            bounds = QRect(0, 0, self.rectWidthSpinBox.value(), self.rectHeightSpinBox.value())
-
-        opacity = node.opacity()
-        node.setOpacity(255)
-
-        node.save(imageFileName, self.resSpinBox.value() / 72., self.resSpinBox.value() / 72., krita.InfoObject(), bounds)
-
-        node.setOpacity(opacity)
-        
-        # TODO check if the file was correctly exported. The Node.save() method always reports False :/
-
-        frameInfo = oca_krita.getKeyframeInfo(document, node, frameNumber, not self.cropToImageBounds.isChecked())
-        frameInfo['fileName'] = imagePath
-
-        return frameInfo
+        oca.kritaDocument.export( document, self.directoryTextField.text(), {
+                                    'fullClip': self.fullClipRadioButton.isChecked(),
+                                    'flattenImage': self.flattenImageCheckbox.isChecked(),
+                                    'exportReference': self.exportReferenceCheckbox.isChecked(),
+                                    'exportFilterLayers': self.exportFilterLayersCheckBox.isChecked(),
+                                    'exportInvisibleLayers': self.exportInvisibleLayersCheckBox.isChecked(),
+                                    'cropToImageBounds': self.cropToImageBounds.isChecked(),
+                                    'width': self.rectWidthSpinBox.value(),
+                                    'height': self.rectHeightSpinBox.value(),
+                                    'resolution': self.resSpinBox.value() / 72.0,
+                                } )
 
     def _selectDir(self):
         directory = QFileDialog.getExistingDirectory(
@@ -499,13 +219,3 @@ class OCAExportDialog(QDialog):
         else:
             self.exportFilterLayersCheckBox.setChecked(False)
             self.exportReferenceCheckbox.setChecked(True)
-
-    def _disable_reference_nodes(self, parentNode, disable=True):
-        for node in parentNode.childNodes():
-            if node.visible():
-                if '_reference_' in node.name():
-                    node.setVisible(not disable)
-                    self.disabled_layers.append(node)
-
-                if node.type() == 'grouplayer':
-                    self._disable_reference_nodes(node)

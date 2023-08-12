@@ -20,9 +20,7 @@ Note that vector layers are not supported by *OCA* for Krita (yet).
 
 ### Dependencies
 
-- [DuKRIF](https://github.com/Rainbox-dev/DuKRIF) >= 0.0.1  
-Copy or symlink the *DuKRIF* module inside `src/OCA`
-- [OCA](https://github.com/Rainbox-dev/OCA) >= 1.1.0  
+- [OCA](https://github.com/Rainbox-dev/OCA) >= 1.1.1  
 Copy or symlink the *ocapy* module inside `src/OCA`
 
 ## Join the community

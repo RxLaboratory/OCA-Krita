@@ -20,19 +20,29 @@ SET src==%absolute%
 :: remove previous install
 del /Q %kritaDir%\pykrita\OCA.desktop
 del /Q %kritaDir%\pykrita\OCA\*.*
+rmdir %kritaDir%\pykrita\OCA\utils
 rmdir %kritaDir%\pykrita\OCA\ocapy
-rmdir %kritaDir%\pykrita\OCA\dukrif
 rmdir %kritaDir%\pykrita\OCA
 
 :: link the desktop file and create the plugin dir
 mklink %kritaDir%\pykrita\OCA.desktop %src%\OCA.desktop
 mkdir %kritaDir%\pykrita\OCA
+
 :: link plugin files
-FOR /f %%f IN ('dir /b %src%\OCA\*') DO mklink %kritaDir%\pykrita\OCA\%%f %src%\OCA\%%f
-:: link DuKRIF
-mklink /D %kritaDir%\pykrita\OCA\dukrif %DuKRIFModule%
+mklink %kritaDir%\pykrita\OCA\__init__.py %src%\OCA\__init__.py
+mklink %kritaDir%\pykrita\OCA\config.py %src%\OCA\config.py
+mklink %kritaDir%\pykrita\OCA\exportanimdialog.py %src%\OCA\exportanimdialog.py
+mklink %kritaDir%\pykrita\OCA\oca_krita.py %src%\OCA\oca_krita.py
+mklink %kritaDir%\pykrita\OCA\oca_plugin.py %src%\OCA\oca_plugin.py
+mklink %kritaDir%\pykrita\OCA\uiexportanim.py %src%\OCA\uiexportanim.py
+
+mklink %kritaDir%\pykrita\OCA\manual.html %src%\OCA\manual.html
+
+mklink /D %kritaDir%\pykrita\OCA\utils %src%\OCA\utils
+
 :: link OCA
 mklink /D %kritaDir%\pykrita\OCA\ocapy %OCAModule%
+
 :: Finished!
 PAUSE
 

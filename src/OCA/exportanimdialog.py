@@ -1,7 +1,7 @@
 # OCA Exporter for Krita
-# Copyright (c) 2020-2022 - Nicolas Dufresne, RxLaboratory and contributors
+# Copyright (c) 2020-2023 - Nicolas Dufresne, RxLaboratory and contributors
 # This script is licensed under the GNU General Public License v3
-# https://rainboxlab.org
+# https://rxlaboratory.org
 # 
 # OCA was made using "Export Layers" for Krita, which is licensed CC 0 1.0  - public domain
 #

@@ -1,7 +1,7 @@
 # OCA Exporter for Krita
-# Copyright (c) 2020-2022 - Nicolas Dufresne, RxLaboratory and contributors
+# Copyright (c) 2020-2023 - Nicolas Dufresne, RxLaboratory and contributors
 # This script is licensed under the GNU General Public License v3
-# https://rainboxlab.org
+# https://rxlaboratory.org
 # 
 # OCA was made using "Export Layers" for Krita, which is licensed CC 0 1.0  - public domain
 #
@@ -21,8 +21,9 @@
 
 
 from . import exportanimdialog
+from . import utils
+from . import oca_krita
 from .ocapy import oca as ocaLib
-from .dukrif import (DuKRIF_utils, DuKRIF_animation, DuKRIF_json, DuKRIF_io, DuKRIF_nodes) # pylint: disable=import-error
 from .config import VERSION, OCA_VERSION
 from PyQt5.QtCore import (Qt, QRect) # pylint: disable=no-name-in-module # pylint: disable=import-error
 from PyQt5.QtWidgets import (QFormLayout, QListWidget, QHBoxLayout, # pylint: disable=no-name-in-module # pylint: disable=import-error
@@ -33,6 +34,7 @@ from PyQt5.QtWidgets import (QFormLayout, QListWidget, QHBoxLayout, # pylint: di
 import os
 import json
 import krita # pylint: disable=import-error
+
 
 class UIExportAnim(object):
 
@@ -213,7 +215,7 @@ class UIExportAnim(object):
         self.mkdir('')
 
         # Collect doc info
-        self.docInfo = DuKRIF_json.getDocInfo(document)
+        self.docInfo = oca_krita.getDocInfo(document)
         self.docInfo['ocaVersion'] = self.ocaVersion
         if self.docInfo['name'] == "":
             self.docInfo['name'] = "Document"
@@ -268,7 +270,7 @@ class UIExportAnim(object):
     def _exportFlattened(self, document, fileFormat, parentDir):
         """ This method exports a flattened image of the document for each keyframe of the animation. """
 
-        nodeInfo = DuKRIF_json.createNodeInfo( self.docInfo['name'])
+        nodeInfo = oca_krita.createNodeInfo( self.docInfo['name'])
         nodeInfo['fileType'] = fileFormat
         nodeInfo['animated'] = True
         nodeInfo['position'] = [ self.docInfo['width'] / 2, self.docInfo['height'] / 2 ]
@@ -287,7 +289,7 @@ class UIExportAnim(object):
             if (self.progressdialog.wasCanceled()):
                 self._end_export()
                 break
-            if DuKRIF_animation.hasKeyframeAtTime(document.rootNode(), frame):
+            if utils.krita.hasKeyframeAtTime(document.rootNode(), frame):
                 frameInfo = self._exportFlattenedFrame(document, fileFormat, frame, parentDir)
                 if prevFrameNumber >= 0:
                     nodeInfo['frames'][-1]['duration'] = frame - prevFrameNumber
@@ -304,18 +306,18 @@ class UIExportAnim(object):
 
     def _exportFlattenedFrame(self, document, fileFormat, frameNumber, parentDir):
 
-        DuKRIF_animation.setCurrentFrame(document, frameNumber)
+        utils.krita.setCurrentFrame(document, frameNumber)
 
-        imageName = '{0}_{1}'.format( self.docInfo['name'], DuKRIF_utils.intToStr(frameNumber))
+        imageName = '{0}_{1}'.format( self.docInfo['name'], utils.str.intToStr(frameNumber))
         imagePath = '{0}/{1}.{2}'.format( parentDir, imageName, fileFormat)
         imageFileName = self.getAbsolutePath(imagePath)
 
-        succeed = DuKRIF_io.exportDocument(document, imageFileName)
+        succeed = utils.krita.exportDocument(document, imageFileName)
         
         if not succeed:
-            frameInfo = DuKRIF_json.createKeyframeInfo("Export failed", "", frameNumber)
+            frameInfo = oca_krita.createKeyframeInfo("Export failed", "", frameNumber)
         else:       
-            frameInfo = DuKRIF_json.createKeyframeInfo(imageName, imagePath, frameNumber)
+            frameInfo = oca_krita.createKeyframeInfo(imageName, imagePath, frameNumber)
             frameInfo['position'] = [ self.docInfo['width'] / 2, self.docInfo['height'] / 2 ]
             frameInfo['width'] = self.docInfo['width']
             frameInfo['height'] = self.docInfo['height']
@@ -361,14 +363,13 @@ class UIExportAnim(object):
 
             if merge:
                 print("OCA >> Merging node: " + nodeName)
-                DuKRIF_nodes.disableIgnoreNodes(node)
-                node = DuKRIF_nodes.flattenNode(document, node, i, parentNode)
-                print(node.type())
+                utils.krita.disableNodes(node)
+                node = utils.krita.flattenNode(document, node, i, parentNode)
                 nodeName = nodeName.replace("_merge_","").strip()
                 node.setName( nodeName )
                 print("OCA >> Merged and renamed node: " + node.name())
 
-            nodeInfo = DuKRIF_json.getNodeInfo(document, node)
+            nodeInfo = oca_krita.getNodeInfo(document, node)
             nodeInfo['fileType'] = fileFormat
             nodeInfo['reference'] = "_reference_" in nodeName
             # Update size if not cropped:
@@ -423,7 +424,7 @@ class UIExportAnim(object):
                 if (self.progressdialog.wasCanceled()):
                     self._end_export()
                     break
-                if DuKRIF_animation.hasKeyframeAtTime(node, frame):
+                if utils.krita.hasKeyframeAtTime(node, frame):
                     frameInfo = self._exportNodeFrame(document, node, _fileFormat, frame, nodeDir)
                     if prevFrameNumber >= 0:
                         nodeInfo['frames'][-1]['duration'] = frame - prevFrameNumber
@@ -443,13 +444,13 @@ class UIExportAnim(object):
 
     def _exportNodeFrame(self, document, node, fileFormat, frameNumber, parentDir):
 
-        DuKRIF_animation.setCurrentFrame(document, frameNumber)
+        utils.krita.setCurrentFrame(document, frameNumber)
 
         if node.bounds().width() == 0:
-            frameInfo = DuKRIF_json.createKeyframeInfo("_blank", "", frameNumber)
+            frameInfo = oca_krita.createKeyframeInfo("_blank", "", frameNumber)
             return frameInfo
 
-        imageName = '{0}_{1}'.format( node.name().strip(), DuKRIF_utils.intToStr(frameNumber))
+        imageName = '{0}_{1}'.format( node.name().strip(), utils.str.intToStr(frameNumber))
         imagePath = '{0}/{1}.{2}'.format( parentDir, imageName, fileFormat)
         imageFileName = imageFileName = self.getAbsolutePath(imagePath)
 
@@ -467,7 +468,7 @@ class UIExportAnim(object):
         
         # TODO check if the file was correctly exported. The Node.save() method always reports False :/
 
-        frameInfo = DuKRIF_json.getKeyframeInfo(document, node, frameNumber, not self.cropToImageBounds.isChecked())
+        frameInfo = oca_krita.getKeyframeInfo(document, node, frameNumber, not self.cropToImageBounds.isChecked())
         frameInfo['fileName'] = imagePath
 
         return frameInfo

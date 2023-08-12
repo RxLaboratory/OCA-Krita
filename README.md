@@ -14,9 +14,9 @@ Note that vector layers are not supported by *OCA* for Krita (yet).
 
 - 📖 A **comprehensive user documentation** is [available here](http://oca-krita.rxlab.guide/).
 
-- 🎥 You can **download the latest public version [here](https://rxlaboratory.org/tools/oca-for-krita/)**.
+- 📦 You can **download the latest public version [here](https://rxlaboratory.org/tools/oca-for-krita/)**.
 
-- 📣 You can also **help us and get nice perks** by [becoming a member of RxLaboratory](http://membership.rxlab.info), or you can [make a donation to RxLab.](https://donate.rxlab.info) to help the development all our free tools.
+- 💜 You can also **help us and get nice perks** by [becoming a member of RxLaboratory](http://membership.rxlab.info), or you can [make a donation to RxLab.](https://donate.rxlab.info) to help the development all our free tools.
 
 ### Dependencies
 

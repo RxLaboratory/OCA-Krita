@@ -1,4 +1,4 @@
-# OCA - Open Cel Animation format for Krita
+# OCA - Open Cel Animation exporter for Krita
 Exports Animation keyframes from Krita to [OCA](https://rxlaboratory.org/tools/oca), a *JSON* + *PNG*/*EXR* format.
 
 This format can then be imported in After Effects (using [*DuIO*](https://rainboxlab.org/tools/duio/) for example), Blender, Fusionn...

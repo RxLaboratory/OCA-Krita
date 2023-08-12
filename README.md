@@ -2,7 +2,7 @@
 
 Exports Animation keyframes from Krita to [OCA](https://rxlaboratory.org/tools/oca), a *JSON* + *PNG*/*EXR* format.
 
-## Relocation notice!
+## ⚠️ Relocation notice!
 
 The canonical repository for OCA is [on
 Codeberg](https://codeberg.org/RxLaboratory/OCA-Krita) but we maintain [a

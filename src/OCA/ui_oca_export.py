@@ -2,7 +2,7 @@ import os
 import krita # pylint: disable=import-error
 from PyQt5.QtCore import Qt # pylint: disable=no-name-in-module # pylint: disable=import-error
 from PyQt5.QtWidgets import ( # pylint: disable=no-name-in-module # pylint: disable=import-error
-    QFormLayout,
+    QFormLayout, 
     QListWidget,
     QHBoxLayout, 
     QDialogButtonBox,
@@ -22,6 +22,7 @@ from PyQt5.QtWidgets import ( # pylint: disable=no-name-in-module # pylint: disa
 
 from . import oca_krita as oca
 from .config import VERSION
+from .ui_settings_dialog import SettingsDialog
 
 class OCAExportDialog(QDialog):
 
@@ -60,6 +61,12 @@ class OCAExportDialog(QDialog):
         self.fullClipRadioButton = QRadioButton(i18n("Full clip")) # pylint: disable=undefined-variable
         self.currentSelectionRadioButton = QRadioButton(i18n("Selected range")) # pylint: disable=undefined-variable
 
+        self.line = QFrame()
+
+        self.bottomLayout = QHBoxLayout()
+
+        self.settingsButton = QPushButton("⚙ " + i18n("Settings") ) # pylint: disable=undefined-variable
+
         self.buttonBox = QDialogButtonBox(
             QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
 
@@ -74,6 +81,7 @@ class OCAExportDialog(QDialog):
         self.buttonBox.rejected.connect(self.close)
         self.cropToImageBounds.stateChanged.connect(self._toggleCropSize)
         self.flattenImageCheckbox.stateChanged.connect(self._toggleFlatten)
+        self.settingsButton.clicked.connect(self.settingsButtonClicked)
 
         self.setWindowModality(Qt.NonModal)
         self.widgetDocuments.setSizeAdjustPolicy(
@@ -81,6 +89,7 @@ class OCAExportDialog(QDialog):
         self.widgetDocuments.setSelectionMode(QAbstractItemView.MultiSelection)
 
     def initialize(self):
+        """Loads  the documents and sets default values to the UI"""
         self.loadDocuments()
 
         self.rectWidthSpinBox.setRange(1, 10000)
@@ -121,13 +130,15 @@ class OCAExportDialog(QDialog):
         #    i18n("Images extensions:"), self.formatsComboBox)
         self.formLayout.addRow(i18n("Time range:"), self.timeRangeLayout) # pylint: disable=undefined-variable
 
-        self.line = QFrame()
         self.line.setFrameShape(QFrame.HLine)
         self.line.setFrameShadow(QFrame.Sunken)
 
         self.mainLayout.addLayout(self.formLayout)
         self.mainLayout.addWidget(self.line)
-        self.mainLayout.addWidget(self.buttonBox)
+        self.mainLayout.addLayout(self.bottomLayout)
+        self.bottomLayout.addWidget(self.settingsButton)
+        self.bottomLayout.addStretch(1)
+        self.bottomLayout.addWidget(self.buttonBox)
 
         self.resize(500, 300)
         self.setWindowTitle(i18n("OCA Export ") + " v" + self.version) # pylint: disable=undefined-variable
@@ -138,6 +149,10 @@ class OCAExportDialog(QDialog):
     def closeEvent(self, event):
         """Accept close"""
         event.accept()
+
+    def settingsButtonClicked(self):
+        d = SettingsDialog(self)
+        d.exec()
 
     def loadDocuments(self):
         self.widgetDocuments.clear()

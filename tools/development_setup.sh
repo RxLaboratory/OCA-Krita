@@ -32,7 +32,7 @@ for file in $OCAModule/oca_core/*.py; do
     echo "Linked $file"
 done
 # link OCA Krita
-for file in $OCAModule/oca_core/*.py; do
+for file in $OCAModule/oca_krita/*.py; do
     ln -s -t "$kritaDir/pykrita/OCA/oca_krita" "$file"
     echo "Linked $file"
 done

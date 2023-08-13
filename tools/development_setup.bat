@@ -1,6 +1,5 @@
 :: Edit these variables with the correct paths on your system
 SET kritaDir=%appdata%\krita
-SET DuKRIFModule=..\..\DuKRIF\dukrif
 SET OCAModule=..\..\..\OCA\lib\py
 
 :: Need admin to create symlinks
@@ -10,8 +9,6 @@ if not "%1"=="am_admin" (powershell start -verb runas '%0' am_admin & exit /b)
 pushd "%CD%"
 CD /D "%~dp0"
 
-call :getabsolute %DuKRIFModule%
-SET DuKRIFModule=%absolute%
 call :getabsolute %OCAModule%
 SET OCAModule=%absolute%
 call :getabsolute "..\src"

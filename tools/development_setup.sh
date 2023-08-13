@@ -3,13 +3,11 @@
 kritaDir=~/.local/share/krita
 
 thisModule=../src/
-dukrifModule=../../DuKRIF/dukrif
-OCAModule=../../../OCA/ocapy
+OCAModule=../../../OCA/lib/py
 
 # convert to absolute paths
 thisModule=$(cd "$thisModule"; pwd)
 kritaDir=$(cd "$kritaDir"; pwd)
-dukrifModule=$(cd "$dukrifModule"; pwd)
 OCAModule=$(cd "$OCAModule"; pwd)
 
 # remove existing OCA if any
@@ -19,8 +17,8 @@ rm -f "$kritaDir/pykrita/OCA.desktop"
 # Link desktop file and create the plugin dir
 ln -s -t "$kritaDir/pykrita" "$thisModule/OCA.desktop"
 mkdir "$kritaDir/pykrita/OCA"
-mkdir "$kritaDir/pykrita/OCA/dukrif"
-mkdir "$kritaDir/pykrita/OCA/ocapy"
+mkdir "$kritaDir/pykrita/OCA/oca_krita"
+mkdir "$kritaDir/pykrita/OCA/oca_core"
 
 # link plugin files
 for file in $thisModule/OCA/*.*; do
@@ -28,15 +26,14 @@ for file in $thisModule/OCA/*.*; do
     echo "Linked $file"
 done
 
-# link DuKRIF
-for file in $dukrifModule/*.py; do
-    ln -s -t "$kritaDir/pykrita/OCA/dukrif" "$file"
+# link OCA Core
+for file in $OCAModule/oca_core/*.py; do
+    ln -s -t "$kritaDir/pykrita/OCA/oca_core" "$file"
     echo "Linked $file"
 done
-
-# link OCA
-for file in $OCAModule/*.py; do
-    ln -s -t "$kritaDir/pykrita/OCA/ocapy" "$file"
+# link OCA Krita
+for file in $OCAModule/oca_core/*.py; do
+    ln -s -t "$kritaDir/pykrita/OCA/oca_krita" "$file"
     echo "Linked $file"
 done
 

@@ -72,36 +72,51 @@
                 
                 
                     <li >
-                        <a href="index.html">v1.2.2</a>
+                        <a href="index.html">v1.3.0</a>
                     </li>
                 
                 
                 
-                    <li >
-                        <a href="install.html">Installation</a>
-                    </li>
-                
-                
-                
-                    <li >
-                        <a href="layer-tags.html">Layer Tags</a>
-                    </li>
-                
-                
-                
-                    <li class="active">
-                        <a href="blending-modes.html">Blending Modes</a>
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">User Guide <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li >
+    <a href="install.html">Installation</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="layer-tags.html">Layer Tags</a>
+</li>
+
+                        
+                            
+<li class="active">
+    <a href="blending-modes.html">Blending Modes</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="settings.html">Settings</a>
+</li>
+
+                        
+                        </ul>
                     </li>
                 
                 
                 
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">... <b class="caret"></b></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Misc <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                         
                             
 <li >
-    <a href="changelog.html">Changelog</a>
+    <a href="https://codeberg.org/RxLaboratory/OCA-Krita/releases">Changelog</a>
 </li>
 
                         
@@ -156,7 +171,7 @@
                         </a>
                     </li>
                     <li >
-                        <a rel="next" href="changelog.html">
+                        <a rel="next" href="settings.html">
                             Next <i class="fas fa-arrow-right"></i>
                         </a>
                     </li>
@@ -172,46 +187,48 @@
         
         
         <div class="col-md-3"><div id="side-menu">
-    <div class="bs-sidebar hidden-print affix well" role="complementary">
-        <ul class="nav bs-sidenav">
-            <li class="first-level active"><a href="#krita-blending-modes">Krita Blending Modes</a></li>
-        </ul>
-    </div>
     <div class="bs-sidebar hidden-print  affix well collapsible" role="complementary">
         <!-- Main navigation -->
         <ul class="nav bs-sidenav">
         
         
             <li >
-                <a href="index.html">v1.2.2</a>
-            </li>
-        
-        
-        
-            <li >
-                <a href="install.html">Installation</a>
-            </li>
-        
-        
-        
-            <li >
-                <a href="layer-tags.html">Layer Tags</a>
-            </li>
-        
-        
-        
-            <li class="active">
-                <a href="blending-modes.html">Blending Modes</a>
+                <a href="index.html">v1.3.0</a>
             </li>
         
         
         
             <li class="first-level">
-                <button  type="button" class="collapse-button ">...</button>
+                <button  type="button" class="collapse-button active-collapse-button">User Guide</button>
+                <ul class="collapsible-content collapsible-content-active">
+                    
+                        
+                        <li class="second-level "><a href="install.html">Installation</a></li>
+                        
+                    
+                        
+                        <li class="second-level "><a href="layer-tags.html">Layer Tags</a></li>
+                        
+                    
+                        
+                        <li class="second-level active"><a href="blending-modes.html">Blending Modes</a></li>
+                        
+                    
+                        
+                        <li class="second-level "><a href="settings.html">Settings</a></li>
+                        
+                    
+                </ul>
+            </li>
+        
+        
+        
+            <li class="first-level">
+                <button  type="button" class="collapse-button ">Misc</button>
                 <ul class="collapsible-content ">
                     
                         
-                        <li class="second-level "><a href="changelog.html">Changelog</a></li>
+                        <li class="second-level "><a href="https://codeberg.org/RxLaboratory/OCA-Krita/releases">Changelog</a></li>
                         
                     
                         
@@ -245,6 +262,11 @@
         
         </ul>
     </div>
+    <div class="bs-sidebar hidden-print affix well" role="complementary">
+        <ul class="nav bs-sidenav">
+            <li class="first-level active"><a href="#krita-blending-modes">Krita Blending Modes</a></li>
+        </ul>
+    </div>
     <div class="footer-meta"></div>
 </div></div>
         <div class="col-md-9" role="main">
@@ -263,6 +285,10 @@
 <tr>
 <td>normal</td>
 <td>normal</td>
+</tr>
+<tr>
+<td>add</td>
+<td>add</td>
 </tr>
 <tr>
 <td>darken</td>
@@ -708,6 +734,20 @@
 </table>
 <p>If a blending mode is not listed in this table, that means it is not supported by OCA (yet).</p></div>
         
+            <div class="nav-footer">
+            <ul>
+                <li class="nav-footer-prev">
+                    <a rel="prev" href="layer-tags.html">
+                        <i class="fas fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li class="nav-footer-next">
+                    <a rel="next" href="settings.html">
+                        Next <i class="fas fa-arrow-right"></i>
+                    </a>
+                </li>
+            </ul>
+            </div>
         
     </div>
 
@@ -801,6 +841,21 @@
         </div>
     </div>
 </div>
+
+        <!-- Crowdin widget -->
+        <script
+            type="text/javascript"
+            src="https://crowdin.com/js/crowdjet/crowdjet.js">
+        </script>
+        <div
+            id="crowdjet-container"
+            data-project-id="530368"
+            style="bottom: 90px; right: 20px;">
+        </div>
+        <div
+            id="crowdjet-expand-container"
+            style="bottom: 10px; right: 20px;">
+        </div>
     </body>
 
 </html>

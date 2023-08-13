@@ -6,10 +6,8 @@ This plugin is installed the same way as other Krita plugins.
 
 1. Open the Script Importer plugin in Krita via `Tools ‣ Scripts ‣ Import Python Plugin...`
 2. Locate and import the *OCA.zip* file you've downloaded.
-3. Restart Krita
-4. Go to `Settings ‣ Configure Krita...`
-5. In the `Python Plugin Manager` tab, enable the *OCA* plugin
-6. Restart Krita
+3. Activate the plugin
+4. Restart Krita
 
 ## Manually
 

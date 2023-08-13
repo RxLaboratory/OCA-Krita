@@ -1,12 +1,10 @@
 #!/bin/bash
 
 thisModule=../src/
-dukrifModule=../../DuKRIF/dukrif
-OCAModule=../../../OCA/ocapy
+OCAModule=../../../OCA/lib/py
 
 # convert to absolute paths
 thisModule=$(cd "$thisModule"; pwd)
-dukrifModule=$(cd "$dukrifModule"; pwd)
 OCAModule=$(cd "$OCAModule"; pwd)
 
 # remove existing OCA if any
@@ -18,10 +16,9 @@ cp "$thisModule/OCA.desktop" "build/OCA.desktop"
 
 # copy plugin files
 cp -rf "$thisModule/OCA"  "build/OCA"
-# copy DuKRIF
-cp -rf "$dukrifModule"  "build/OCA/dukrif"
 # copy OCA
-cp -rf "$OCAModule"  "build/OCA/ocapy"
+cp -rf "$OCAModule/oca_core"  "build/OCA/oca_core"
+cp -rf "$OCAModule/oca_krita"  "build/OCA/oca_krita"
 
 # Build doc
 cd ../src-docs

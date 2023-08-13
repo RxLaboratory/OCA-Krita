@@ -30,9 +30,12 @@ This *OCA* exporter will export the most common features of all drawing/animatio
 
 ![YOUTUBE](cjAMmYF8OtE)
 
+## Table of Contents
+
 - [Installation](install.md)
 - [Use layer tags](layer-tags.md)
 - [List of supported blending modes](blending-modes.md)
+- [Settings](settigns.md)
 
 ## License
 

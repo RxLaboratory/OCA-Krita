@@ -16,4 +16,23 @@ $(document).ready(function () {
         var video = '<div class="ratio-1-78"><iframe src="https://player.vimeo.com/video/' + id + '?color=ec1818&title=0&byline=0&portrait=0" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>';
         $(this).replaceWith(video);
     });
+    $('img[alt="RXLAB_VIDEO"]').each(function() {
+        // Generate ID
+        const id = 'plyr' + Date.now();
+        var source = $(this).attr('src');
+        var video = [
+            '<div class="video-plyr">',
+            '<video id="' + id + '" controls>',
+            '<source src="' + source + '" type="video/mp4" />',
+            '</video>',
+            '</div>',
+            '<script>',
+            'const evplayerplyr'+ id + ' = new Plyr(document.getElementById("' + id + '"));',
+            'evplayerplyr'+ id + '.ratio = "16:9";',
+            'evplayerplyr'+ id + '.iconUrl = "https://rxlaboratory.org/wp-content/plugins/easy-video-player/lib/plyr.svg";',
+            'evplayerplyr'+ id + '.blankVideo = "https://rxlaboratory.org/wp-content/plugins/easy-video-player/lib/blank.mp4";',
+            '</script>'
+        ].join('\n');
+        $(this).replaceWith(video);
+    });
 });

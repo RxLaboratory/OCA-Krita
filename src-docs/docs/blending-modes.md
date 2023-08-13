@@ -7,6 +7,7 @@ As OCA Blending modes are based on those of Krita, all of these are exact matche
 | Krita | OCA |
 |---|---|
 | normal | normal |
+| add | add |
 | darken | darken |
 | burn | burn |
 | color | color |

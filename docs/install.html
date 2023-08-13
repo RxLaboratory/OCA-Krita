@@ -72,36 +72,51 @@
                 
                 
                     <li >
-                        <a href="index.html">v1.2.2</a>
+                        <a href="index.html">v1.3.0</a>
                     </li>
                 
                 
                 
-                    <li class="active">
-                        <a href="install.html">Installation</a>
-                    </li>
-                
-                
-                
-                    <li >
-                        <a href="layer-tags.html">Layer Tags</a>
-                    </li>
-                
-                
-                
-                    <li >
-                        <a href="blending-modes.html">Blending Modes</a>
+                    <li class="dropdown active">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">User Guide <b class="caret"></b></a>
+                        <ul class="dropdown-menu">
+                        
+                            
+<li class="active">
+    <a href="install.html">Installation</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="layer-tags.html">Layer Tags</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="blending-modes.html">Blending Modes</a>
+</li>
+
+                        
+                            
+<li >
+    <a href="settings.html">Settings</a>
+</li>
+
+                        
+                        </ul>
                     </li>
                 
                 
                 
                     <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">... <b class="caret"></b></a>
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Misc <b class="caret"></b></a>
                         <ul class="dropdown-menu">
                         
                             
 <li >
-    <a href="changelog.html">Changelog</a>
+    <a href="https://codeberg.org/RxLaboratory/OCA-Krita/releases">Changelog</a>
 </li>
 
                         
@@ -172,50 +187,48 @@
         
         
         <div class="col-md-3"><div id="side-menu">
-    <div class="bs-sidebar hidden-print affix well" role="complementary">
-        <ul class="nav bs-sidenav">
-            <li class="first-level active"><a href="#how-to-install-oca-for-krita">How to install OCA for Krita</a></li>
-                <li class="second-level"><a href="#using-the-plugin-importer">Using the plugin importer</a></li>
-                    
-                <li class="second-level"><a href="#manually">Manually</a></li>
-                    
-        </ul>
-    </div>
     <div class="bs-sidebar hidden-print  affix well collapsible" role="complementary">
         <!-- Main navigation -->
         <ul class="nav bs-sidenav">
         
         
             <li >
-                <a href="index.html">v1.2.2</a>
-            </li>
-        
-        
-        
-            <li class="active">
-                <a href="install.html">Installation</a>
-            </li>
-        
-        
-        
-            <li >
-                <a href="layer-tags.html">Layer Tags</a>
-            </li>
-        
-        
-        
-            <li >
-                <a href="blending-modes.html">Blending Modes</a>
+                <a href="index.html">v1.3.0</a>
             </li>
         
         
         
             <li class="first-level">
-                <button  type="button" class="collapse-button ">...</button>
+                <button  type="button" class="collapse-button active-collapse-button">User Guide</button>
+                <ul class="collapsible-content collapsible-content-active">
+                    
+                        
+                        <li class="second-level active"><a href="install.html">Installation</a></li>
+                        
+                    
+                        
+                        <li class="second-level "><a href="layer-tags.html">Layer Tags</a></li>
+                        
+                    
+                        
+                        <li class="second-level "><a href="blending-modes.html">Blending Modes</a></li>
+                        
+                    
+                        
+                        <li class="second-level "><a href="settings.html">Settings</a></li>
+                        
+                    
+                </ul>
+            </li>
+        
+        
+        
+            <li class="first-level">
+                <button  type="button" class="collapse-button ">Misc</button>
                 <ul class="collapsible-content ">
                     
                         
-                        <li class="second-level "><a href="changelog.html">Changelog</a></li>
+                        <li class="second-level "><a href="https://codeberg.org/RxLaboratory/OCA-Krita/releases">Changelog</a></li>
                         
                     
                         
@@ -249,6 +262,15 @@
         
         </ul>
     </div>
+    <div class="bs-sidebar hidden-print affix well" role="complementary">
+        <ul class="nav bs-sidenav">
+            <li class="first-level active"><a href="#how-to-install-oca-for-krita">How to install OCA for Krita</a></li>
+                <li class="second-level"><a href="#using-the-plugin-importer">Using the plugin importer</a></li>
+                    
+                <li class="second-level"><a href="#manually">Manually</a></li>
+                    
+        </ul>
+    </div>
     <div class="footer-meta"></div>
 </div></div>
         <div class="col-md-9" role="main">
@@ -259,9 +281,7 @@
 <ol>
 <li>Open the Script Importer plugin in Krita via <code>Tools ‣ Scripts ‣ Import Python Plugin...</code></li>
 <li>Locate and import the <em>OCA.zip</em> file you&rsquo;ve downloaded.</li>
-<li>Restart Krita</li>
-<li>Go to <code>Settings ‣ Configure Krita...</code></li>
-<li>In the <code>Python Plugin Manager</code> tab, enable the <em>OCA</em> plugin</li>
+<li>Activate the plugin</li>
 <li>Restart Krita</li>
 </ol>
 <h2 id="manually">Manually</h2>
@@ -277,6 +297,20 @@
 <p>To find your resources folder, start Krita and click the <code>Settings ‣ Manage Resources…</code> menu item. This will open a dialog box. Click the <code>Open Resources Folder</code> button.</p>
 </div></div>
         
+            <div class="nav-footer">
+            <ul>
+                <li class="nav-footer-prev">
+                    <a rel="prev" href="index.html">
+                        <i class="fas fa-arrow-left"></i> Previous
+                    </a>
+                </li>
+                <li class="nav-footer-next">
+                    <a rel="next" href="layer-tags.html">
+                        Next <i class="fas fa-arrow-right"></i>
+                    </a>
+                </li>
+            </ul>
+            </div>
         
     </div>
 
@@ -370,6 +404,21 @@
         </div>
     </div>
 </div>
+
+        <!-- Crowdin widget -->
+        <script
+            type="text/javascript"
+            src="https://crowdin.com/js/crowdjet/crowdjet.js">
+        </script>
+        <div
+            id="crowdjet-container"
+            data-project-id="530368"
+            style="bottom: 90px; right: 20px;">
+        </div>
+        <div
+            id="crowdjet-expand-container"
+            style="bottom: 10px; right: 20px;">
+        </div>
     </body>
 
 </html>

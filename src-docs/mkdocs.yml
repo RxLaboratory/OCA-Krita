@@ -27,12 +27,14 @@ extra_javascript:
 site_dir: ../docs/
 dev_addr: '127.0.0.1:8001'
 nav:
-    - v1.2.2: index.md
-    - Installation: install.md
-    - Layer Tags: layer-tags.md
-    - Blending Modes: blending-modes.md
-    - ...:
-        - Changelog: changelog.md
+    - v1.3.0: index.md
+    - User Guide:
+        - Installation: install.md
+        - Layer Tags: layer-tags.md
+        - Blending Modes: blending-modes.md
+        - Settings: settings.md
+    - Misc:
+        - Changelog: https://codeberg.org/RxLaboratory/OCA-Krita/releases
         - License:
             - GNU GPLv3: licenses/gnu-gpl.md
             - Documentation license: licenses/gfdl.md

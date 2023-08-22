@@ -5,4 +5,4 @@ X-KDE-Library=OCA
 X-Python-2-Compatible=false
 X-Krita-Manual=manual.html
 Name=OCA
-Comment=Exports Animation keyfranes from Krita to a JSON format + PNG/EXR
+Comment=Exports Animation keyframes from Krita to a JSON format + PNG/EXR

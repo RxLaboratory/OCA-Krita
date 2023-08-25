@@ -20,5 +20,6 @@
             "title": "Linux"
         }
     ],
-    "userGuide": "http://oca-krita.rxlab.guide"
+    "userGuide": "http://oca-krita.rxlab.guide",
+    "description": "Exports Animation keyframes from Krita to OCA, a JSON + PNG/EXR format."
 }

@@ -21,5 +21,5 @@
         }
     ],
     "userGuide": "http://oca-krita.rxlab.guide",
-    "description": "Exports Animation keyframes from Krita to OCA, a JSON + PNG/EXR format."
+    "description": "Export Animation keyframes from Krita to OCA, a JSON + PNG/EXR format."
 }

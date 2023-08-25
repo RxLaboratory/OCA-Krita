@@ -1,0 +1,24 @@
+{
+    "title": "OCA for Krita",
+    "hosts": [
+        {
+            "name": "krita",
+            "title": "Krita"
+        }
+    ],
+    "os": [
+        {
+            "name": "mac",
+            "title": "macOS"
+        },
+        {
+            "name": "win",
+            "title": "Windows"
+        },
+        {
+            "name": "linux",
+            "title": "Linux"
+        }
+    ],
+    "userGuide": "http://oca-krita.rxlab.guide"
+}

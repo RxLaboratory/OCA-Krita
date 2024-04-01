@@ -21,6 +21,7 @@
         }
     ],
     "userGuide": "http://oca-krita.rxlab.guide",
+    "website": "https://rxlaboratory.org/tools/oca-for-krita/",
     "description": "Export Animation keyframes from Krita to OCA, a JSON + PNG/EXR/SVG format.",
     "assets": [
         {

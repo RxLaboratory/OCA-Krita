@@ -235,11 +235,13 @@ class OCAExportDialog(QDialog):
         ]
 
         for document in self.documentsList:
-            QListWidgetItem (
+            item = QListWidgetItem (
                 QIcon(QPixmap.fromImage(document.thumbnail(128,128))),
                 document.fileName(),
                 self.widgetDocuments
                 )
+            if document == Application.activeDocument(): # pylint: disable=undefined-variable
+                item.setSelected(True)
 
     def refreshButtonClicked(self):
         self.loadDocuments()

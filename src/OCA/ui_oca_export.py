@@ -5,6 +5,7 @@
 """
 
 import os
+import datetime
 import krita # pylint: disable=import-error
 from PyQt5.QtCore import Qt # pylint: disable=no-name-in-module,import-error
 from PyQt5.QtWidgets import ( # pylint: disable=no-name-in-module,import-error
@@ -23,7 +24,11 @@ from PyQt5.QtWidgets import ( # pylint: disable=no-name-in-module,import-error
     QSpinBox,
     QRadioButton,
     QAbstractItemView,
-    QDialog
+    QDialog,
+    QTabWidget,
+    QWidget,
+    QLabel,
+    QTextEdit
     )
 
 # oac_krita contains the actual OCA for Krita code,
@@ -43,7 +48,14 @@ class OCAExportDialog(QDialog):
         self.ocaVersion = oca.VERSION
 
         self.mainLayout = QVBoxLayout(self)
-        self.formLayout = QFormLayout()
+
+        self.tabWidget = QTabWidget(self)
+        self.mainLayout.addWidget(self.tabWidget)
+
+        self.optionsWidget = QWidget(self.tabWidget)
+        self.tabWidget.addTab(self.optionsWidget,"Export options")
+
+        self.formLayout = QFormLayout(self.optionsWidget)
         self.resSpinBoxLayout = QFormLayout()
         self.documentLayout = QVBoxLayout()
         self.directorySelectorLayout = QHBoxLayout()
@@ -68,6 +80,31 @@ class OCAExportDialog(QDialog):
 
         self.fullClipRadioButton = QRadioButton(i18n("Full clip")) # pylint: disable=undefined-variable
         self.currentSelectionRadioButton = QRadioButton(i18n("Selected range")) # pylint: disable=undefined-variable
+
+        self.metadataWidget = QWidget(self.tabWidget)
+        self.tabWidget.addTab(self.metadataWidget,"Metadata")
+
+        self.metadataLayout = QFormLayout(self.metadataWidget)
+
+        now = datetime.datetime.now()
+        meta = oca.kritaMetadata.PLUGIN_METADATA
+
+        self.authorEdit = QLineEdit()
+        self.descriptionEdit = QTextEdit()
+        self.copyrightEdit = QLineEdit("ⓒ Copyright " + str(now.date().year))
+        self.licenseEdit = QLineEdit()
+        self.licenseEdit.setPlaceholderText("CC-BY-NC-SA 4.0")
+        self.licenseLongEdit = QLineEdit()
+        self.licenseLongEdit.setPlaceholderText("Creative Commons-Attribution-NonCommercial-ShareAlike 4.0")
+        self.licenseURLEdit = QLineEdit()
+        self.licenseURLEdit.setPlaceholderText("https://creativecommons.org/licenses/by-nc-sa/4.0/")
+        self.createdLabel = QLabel(now.strftime("%Y-%m-%d %H:%M:%S"))
+        self.originAppLabel = QLabel(meta.get('originApp', ""))
+        self.originAppVersionLabel = QLabel(meta.get('originAppVersion', ""))
+        self.exportedByLabel = QLabel(meta.get('exportedBy', ""))
+        self.exportedByIDLabel = QLabel(meta.get('exportedByID', ""))
+        self.exportedByOrgLabel = QLabel(meta.get('exportedByOrg', ""))
+        self.exportedByURLabel = QLabel(meta.get('exportedByURL', ""))
 
         self.line = QFrame()
 
@@ -138,6 +175,20 @@ class OCAExportDialog(QDialog):
         #    i18n("Images extensions:"), self.formatsComboBox)
         self.formLayout.addRow(i18n("Time range:"), self.timeRangeLayout) # pylint: disable=undefined-variable
 
+        self.metadataLayout.addRow(i18n("Author:"), self.authorEdit) # pylint: disable=undefined-variable
+        self.metadataLayout.addRow(i18n("Description:"), self.descriptionEdit) # pylint: disable=undefined-variable
+        self.metadataLayout.addRow(i18n("Copyright:"), self.copyrightEdit) # pylint: disable=undefined-variable
+        self.metadataLayout.addRow(i18n("License short name:"), self.licenseEdit) # pylint: disable=undefined-variable
+        self.metadataLayout.addRow(i18n("License complete name:"), self.licenseLongEdit) # pylint: disable=undefined-variable
+        self.metadataLayout.addRow(i18n("License URL:"), self.licenseURLEdit) # pylint: disable=undefined-variable
+        self.metadataLayout.addRow(i18n("Creation date:"), self.createdLabel) # pylint: disable=undefined-variable
+        self.metadataLayout.addRow(i18n("Origin app:"), self.originAppLabel) # pylint: disable=undefined-variable
+        self.metadataLayout.addRow(i18n("Origin app version:"), self.originAppVersionLabel) # pylint: disable=undefined-variable
+        self.metadataLayout.addRow(i18n("Export add-on:"), self.exportedByLabel) # pylint: disable=undefined-variable
+        self.metadataLayout.addRow(i18n("Export add-on URI:"), self.exportedByIDLabel) # pylint: disable=undefined-variable
+        self.metadataLayout.addRow(i18n("Export add-on maintainer:"), self.exportedByOrgLabel) # pylint: disable=undefined-variable
+        self.metadataLayout.addRow(i18n("Export add-on URL:"), self.exportedByURLabel) # pylint: disable=undefined-variable
+
         self.line.setFrameShape(QFrame.HLine)
         self.line.setFrameShadow(QFrame.Sunken)
 
@@ -207,6 +258,14 @@ class OCAExportDialog(QDialog):
                                     'width': self.rectWidthSpinBox.value(),
                                     'height': self.rectHeightSpinBox.value(),
                                     'resolution': self.resSpinBox.value() / 72.0,
+                                },
+                                {
+                                    'author': self.authorEdit.text(),
+                                    'copyright': self.copyrightEdit.text(),
+                                    'description': self.descriptionEdit.toPlainText(),
+                                    'license': self.licenseEdit.text(),
+                                    'licenseLong': self.licenseLongEdit.text(),
+                                    'licenseURL': self.licenseURLEdit.text(),
                                 } )
 
     def _selectDir(self):

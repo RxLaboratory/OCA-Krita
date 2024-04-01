@@ -21,5 +21,17 @@
         }
     ],
     "userGuide": "http://oca-krita.rxlab.guide",
-    "description": "Export Animation keyframes from Krita to OCA, a JSON + PNG/EXR/SVG format."
+    "description": "Export Animation keyframes from Krita to OCA, a JSON + PNG/EXR/SVG format.",
+    "assets": [
+        {
+            "nameRegEx": "OCA-Krita_.+\\.zip",
+            "name": "OCA for Krita",
+            "description": "The Krita Plug-in to export documents to the OCA format.",
+            "hosts": [ {"name": "krita", "title": "Krita"} ],
+            "os": [ {"name": "mac", "title": "macOS"}, {"name": "win", "title": "Windows"}, {"name": "linux", "title": "Linux"} ],
+            "urls": [
+                {"title": "Documentation", "url": "http://oca-krita.rxlab.guide"}
+            ]
+        }
+    ]
 }

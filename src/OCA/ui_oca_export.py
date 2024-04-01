@@ -1,10 +1,16 @@
+"""! @brief The OCA Export Dialog, including export functions
+ @file ui_oca_export.py
+ @section authors Author(s)
+  - Created by Nicolas Dufresne on 4/1/2024 .
+"""
+
 import os
 import krita # pylint: disable=import-error
-from PyQt5.QtCore import Qt # pylint: disable=no-name-in-module # pylint: disable=import-error
-from PyQt5.QtWidgets import ( # pylint: disable=no-name-in-module # pylint: disable=import-error
-    QFormLayout, 
+from PyQt5.QtCore import Qt # pylint: disable=no-name-in-module,import-error
+from PyQt5.QtWidgets import ( # pylint: disable=no-name-in-module,import-error
+    QFormLayout,
     QListWidget,
-    QHBoxLayout, 
+    QHBoxLayout,
     QDialogButtonBox,
     QVBoxLayout,
     QFrame,
@@ -20,7 +26,9 @@ from PyQt5.QtWidgets import ( # pylint: disable=no-name-in-module # pylint: disa
     QDialog
     )
 
-from . import oca_krita as oca
+# oac_krita contains the actual OCA for Krita code,
+# it is available in the OCA main repo at https://codeberg.org/RxLaboratory/OCA
+from . import oca_krita as oca # pylint: disable=no-name-in-module
 from .config import VERSION
 from .ui_settings_dialog import SettingsDialog
 

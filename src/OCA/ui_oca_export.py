@@ -234,14 +234,23 @@ class OCAExportDialog(QDialog):
             if document.fileName()
         ]
 
+        activeDoc = Application.activeDocument() # pylint: disable=undefined-variable
+
         for document in self.documentsList:
             item = QListWidgetItem (
                 QIcon(QPixmap.fromImage(document.thumbnail(128,128))),
                 document.fileName(),
                 self.widgetDocuments
                 )
-            if document == Application.activeDocument(): # pylint: disable=undefined-variable
+            if document == activeDoc:
                 item.setSelected(True)
+        
+        # If the path is empty, set to the path of the active doc
+        if self.directoryTextField.text() == "":
+            fileName = activeDoc.fileName()
+            self.directoryTextField.setText(
+                os.path.dirname(fileName)
+            )
 
     def refreshButtonClicked(self):
         self.loadDocuments()
@@ -288,12 +297,18 @@ class OCAExportDialog(QDialog):
                                 } )
 
     def _selectDir(self):
+        current = self.directoryTextField.text()
+        if current == "":
+            current = os.path.expanduser("~")
+
         directory = QFileDialog.getExistingDirectory(
             self,
             i18n("Select a Folder"), # pylint: disable=undefined-variable
-            os.path.expanduser("~"),
+            current,
             QFileDialog.ShowDirsOnly)
-        self.directoryTextField.setText(directory)
+        
+        if directory != "":
+            self.directoryTextField.setText(directory)
 
     def _setResolution(self, index):
         document = self.documentsList[index]

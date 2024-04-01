@@ -7,7 +7,14 @@
 import os
 import datetime
 import krita # pylint: disable=import-error
-from PyQt5.QtCore import Qt # pylint: disable=no-name-in-module,import-error
+from PyQt5.QtCore import ( # pylint: disable=no-name-in-module,import-error
+    Qt,
+    QSize,
+)
+from PyQt5.QtGui import ( # pylint: disable=no-name-in-module,import-error
+    QIcon,
+    QPixmap,
+)
 from PyQt5.QtWidgets import ( # pylint: disable=no-name-in-module,import-error
     QFormLayout,
     QListWidget,
@@ -28,7 +35,9 @@ from PyQt5.QtWidgets import ( # pylint: disable=no-name-in-module,import-error
     QTabWidget,
     QWidget,
     QLabel,
-    QTextEdit
+    QTextEdit,
+    QListWidgetItem,
+    QListView,
     )
 
 # oac_krita contains the actual OCA for Krita code,
@@ -65,6 +74,10 @@ class OCAExportDialog(QDialog):
 
         self.refreshButton = QPushButton(i18n("Refresh")) # pylint: disable=undefined-variable
         self.widgetDocuments = QListWidget()
+        self.widgetDocuments.setViewMode(QListView.IconMode)
+        self.widgetDocuments.setIconSize(QSize(128,128))
+        self.widgetDocuments.setGridSize(QSize(138,140))
+        self.widgetDocuments.setMinimumHeight(150)
         self.directoryTextField = QLineEdit()
         self.directoryDialogButton = QPushButton(i18n("...")) # pylint: disable=undefined-variable
         self.flattenImageCheckbox = QCheckBox(i18n("Flatten image")) # pylint: disable=undefined-variable
@@ -222,7 +235,11 @@ class OCAExportDialog(QDialog):
         ]
 
         for document in self.documentsList:
-            self.widgetDocuments.addItem(document.fileName())
+            QListWidgetItem (
+                QIcon(QPixmap.fromImage(document.thumbnail(128,128))),
+                document.fileName(),
+                self.widgetDocuments
+                )
 
     def refreshButtonClicked(self):
         self.loadDocuments()

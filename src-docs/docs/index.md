@@ -35,7 +35,7 @@ This *OCA* exporter will export the most common features of all drawing/animatio
 - [Installation](install.md)
 - [Use layer tags](layer-tags.md)
 - [List of supported blending modes](blending-modes.md)
-- [Settings](settigns.md)
+- [Settings](settings.md)
 
 ## License
 

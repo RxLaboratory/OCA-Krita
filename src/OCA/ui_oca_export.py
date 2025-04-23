@@ -40,7 +40,7 @@ from PyQt5.QtWidgets import ( # pylint: disable=no-name-in-module,import-error
     QListView,
     )
 
-# oac_krita contains the actual OCA for Krita code,
+# oca_krita contains the actual OCA for Krita code,
 # it is available in the OCA main repo at https://codeberg.org/RxLaboratory/OCA
 from . import oca_krita as oca # pylint: disable=no-name-in-module
 from .config import VERSION
@@ -48,7 +48,7 @@ from .ui_settings_dialog import SettingsDialog
 
 class OCAExportDialog(QDialog):
 
-    disabled_layers = []
+    disabled_layers:list = []
 
     def __init__(self, parent = None):
         super(OCAExportDialog, self).__init__(parent)

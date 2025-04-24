@@ -1,7 +1,7 @@
 """The plugin entry point"""
 
 # OCA Exporter for Krita
-# Copyright (c) 2020-2023 - Nicolas Dufresne, RxLaboratory and contributors
+# Copyright (c) 2020-2025 - Nicolas Dufresne and contributors
 # This script is licensed under the GNU General Public License v3
 # https://rxlaboratory.org
 #

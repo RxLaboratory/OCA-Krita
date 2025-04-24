@@ -3,7 +3,7 @@
 kritaDir=~/.local/share/krita
 
 thisModule=../src/
-OCAModule=../../../OCA/lib/py
+OCAModule=../../OCA/lib/py
 
 # convert to absolute paths
 thisModule=$(cd "$thisModule"; pwd)

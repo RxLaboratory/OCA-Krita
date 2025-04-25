@@ -42,7 +42,7 @@ from PyQt5.QtWidgets import ( # pylint: disable=no-name-in-module,import-error
 
 # oca_krita contains the actual OCA for Krita code,
 # it is available in the OCA main repo at https://codeberg.org/RxLaboratory/OCA
-from . import oca_krita as oca # pylint: disable=no-name-in-module
+import oca_krita as oca # pylint: disable=no-name-in-module
 from .config import VERSION
 from .ui_settings_dialog import SettingsDialog
 
@@ -100,7 +100,7 @@ class OCAExportDialog(QDialog):
         self.metadataLayout = QFormLayout(self.metadataWidget)
 
         now = datetime.datetime.now()
-        meta = oca.kritaMetadata.PLUGIN_METADATA
+        meta = oca.kMetadata.PLUGIN_METADATA
 
         self.authorEdit = QLineEdit()
         self.descriptionEdit = QTextEdit()
@@ -276,7 +276,7 @@ class OCAExportDialog(QDialog):
 
     def export(self, document):
 
-        oca.kritaDocument.export( document, self.directoryTextField.text(), {
+        oca.kDocument.export( document, self.directoryTextField.text(), {
                                     'fullClip': self.fullClipRadioButton.isChecked(),
                                     'flattenImage': self.flattenImageCheckbox.isChecked(),
                                     'exportReference': self.exportReferenceCheckbox.isChecked(),

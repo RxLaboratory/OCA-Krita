@@ -20,6 +20,9 @@
 #    along with OCA. If not, see <http://www.gnu.org/licenses/>.
 
 import krita # pylint: disable=import-error
-from .oca_plugin import OCAExport
+
+
+
+from .oca_plugin import OCAExport # pylint: disable=import-error
 
 Scripter.addExtension(OCAExport(krita.Krita.instance())) # pylint: disable=undefined-variable

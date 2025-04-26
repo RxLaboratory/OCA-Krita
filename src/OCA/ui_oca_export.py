@@ -38,6 +38,7 @@ from PyQt5.QtWidgets import ( # pylint: disable=no-name-in-module,import-error
     QTextEdit,
     QListWidgetItem,
     QListView,
+    QComboBox
     )
 
 # oca_krita contains the actual OCA for Krita code,
@@ -69,7 +70,6 @@ class OCAExportDialog(QDialog):
         self.documentLayout = QVBoxLayout()
         self.directorySelectorLayout = QHBoxLayout()
         self.optionsLayout = QVBoxLayout()
-        self.rectSizeLayout = QHBoxLayout()
         self.timeRangeLayout = QVBoxLayout()
 
         self.refreshButton = QPushButton(i18n("Refresh")) # pylint: disable=undefined-variable
@@ -80,16 +80,15 @@ class OCAExportDialog(QDialog):
         self.widgetDocuments.setMinimumHeight(150)
         self.directoryTextField = QLineEdit()
         self.directoryDialogButton = QPushButton(i18n("...")) # pylint: disable=undefined-variable
+        self.nestedDocsLocationComboBox = QComboBox()
+        self.nestedDocsLocationComboBox.addItem(i18n("Collect in the new OCA folder"), userData='collect') # pylint: disable=undefined-variable
+        self.nestedDocsLocationComboBox.addItem(i18n("Next to original document"), userData='keep') # pylint: disable=undefined-variable
         self.flattenImageCheckbox = QCheckBox(i18n("Flatten image")) # pylint: disable=undefined-variable
+        self.flattenNestedDocsCheckbox = QCheckBox(i18n("Flatten nested documents")) # pylint: disable=undefined-variable
         self.exportReferenceCheckbox = QCheckBox(i18n("Export \"_reference_\" layers")) # pylint: disable=undefined-variable
         self.exportFilterLayersCheckBox = QCheckBox(i18n("Export filter layers")) # pylint: disable=undefined-variable
         self.exportInvisibleLayersCheckBox = QCheckBox(i18n("Export invisible layers")) # pylint: disable=undefined-variable
         self.cropToImageBounds = QCheckBox(i18n("Adjust export size to layer content")) # pylint: disable=undefined-variable
-
-        self.rectWidthSpinBox = QSpinBox()
-        self.rectHeightSpinBox = QSpinBox()
-        #self.formatsComboBox = QComboBox()
-        self.resSpinBox = QSpinBox()
 
         self.fullClipRadioButton = QRadioButton(i18n("Full clip")) # pylint: disable=undefined-variable
         self.currentSelectionRadioButton = QRadioButton(i18n("Selected range")) # pylint: disable=undefined-variable
@@ -133,12 +132,11 @@ class OCAExportDialog(QDialog):
 
         self.directoryTextField.setReadOnly(True)
         self.directoryDialogButton.clicked.connect(self._selectDir)
-        self.widgetDocuments.currentRowChanged.connect(self._setResolution)
         self.refreshButton.clicked.connect(self.refreshButtonClicked)
         self.buttonBox.accepted.connect(self.confirmButton)
         self.buttonBox.rejected.connect(self.close)
-        self.cropToImageBounds.stateChanged.connect(self._toggleCropSize)
         self.flattenImageCheckbox.stateChanged.connect(self._toggleFlatten)
+        self.flattenNestedDocsCheckbox.stateChanged.connect(self._toggleFlattenNested)
         self.settingsButton.clicked.connect(self.settingsButtonClicked)
 
         self.setWindowModality(Qt.NonModal)
@@ -150,10 +148,6 @@ class OCAExportDialog(QDialog):
         """Loads  the documents and sets default values to the UI"""
         self.loadDocuments()
 
-        self.rectWidthSpinBox.setRange(1, 10000)
-        self.rectHeightSpinBox.setRange(1, 10000)
-        self.resSpinBox.setRange(20, 1200)
-
         #self.formatsComboBox.addItem(i18n("PNG"))
         #self.formatsComboBox.addItem(i18n("EXR"))
 
@@ -163,27 +157,23 @@ class OCAExportDialog(QDialog):
         self.directorySelectorLayout.addWidget(self.directoryTextField)
         self.directorySelectorLayout.addWidget(self.directoryDialogButton)
 
+        self.nestedDocsLocationComboBox.setCurrentIndex(0)
+
         self.optionsLayout.addWidget(self.flattenImageCheckbox)
+        self.optionsLayout.addWidget(self.flattenNestedDocsCheckbox)
         self.optionsLayout.addWidget(self.exportReferenceCheckbox)
         self.optionsLayout.addWidget(self.exportFilterLayersCheckBox)
         self.optionsLayout.addWidget(self.exportInvisibleLayersCheckBox)
         self.optionsLayout.addWidget(self.cropToImageBounds)
         self.exportReferenceCheckbox.setChecked(True)
-
-        self.resSpinBoxLayout.addRow(i18n("dpi:"), self.resSpinBox) # pylint: disable=undefined-variable
-
-        self.rectSizeLayout.addWidget(self.rectWidthSpinBox)
-        self.rectSizeLayout.addWidget(self.rectHeightSpinBox)
-        self.rectSizeLayout.addLayout(self.resSpinBoxLayout)
-
         self.timeRangeLayout.addWidget(self.fullClipRadioButton)
         self.timeRangeLayout.addWidget(self.currentSelectionRadioButton)
         self.fullClipRadioButton.setChecked(True)
 
         self.formLayout.addRow(i18n("Documents:"), self.documentLayout) # pylint: disable=undefined-variable
         self.formLayout.addRow(i18n("Destination:"), self.directorySelectorLayout) # pylint: disable=undefined-variable
+        self.formLayout.addRow(i18n("Nested documents location:"), self.nestedDocsLocationComboBox) # pylint: disable=undefined-variable
         self.formLayout.addRow(i18n("Export options:"), self.optionsLayout) # pylint: disable=undefined-variable
-        self.formLayout.addRow(i18n("Export size:"), self.rectSizeLayout) # pylint: disable=undefined-variable
         #self.formLayout.addRow(
         #    i18n("Images extensions:"), self.formatsComboBox)
         self.formLayout.addRow(i18n("Time range:"), self.timeRangeLayout) # pylint: disable=undefined-variable
@@ -263,29 +253,40 @@ class OCAExportDialog(QDialog):
             for path in selectedPaths if path == document.fileName()
         ]
 
+        self.setEnabled(False)
+
         self.msgBox = QMessageBox(self)
         if not selectedDocuments:
             self.msgBox.setText(i18n("Select at least one document.")) # pylint: disable=undefined-variable
         elif not self.directoryTextField.text():
             self.msgBox.setText(i18n("Select the initial directory.")) # pylint: disable=undefined-variable
         else:
+            hasError = False
             for doc in selectedDocuments:
-                self.export(doc)
-            self.msgBox.setText(i18n("All Documents have been exported.")) # pylint: disable=undefined-variable
+                ocaDoc = self.export(doc)
+                if ocaDoc.hasWriteError():
+                    hasError = True
+            if not hasError:
+                self.msgBox.setText(i18n("All Documents have been exported.")) # pylint: disable=undefined-variable
+            else:
+                self.msgBox.setText(i18n( # pylint: disable=undefined-variable
+                    "All Documents have been exported but some errors have occured.\nYou should check the exported document."
+                    )) # pylint: disable=undefined-variable
         self.msgBox.exec_()
+
+        self.setEnabled(True)
 
     def export(self, document):
 
-        oca.kDocument.export( document, self.directoryTextField.text(), {
+        return oca.kDocument.export( document, self.directoryTextField.text(), {
                                     'fullClip': self.fullClipRadioButton.isChecked(),
                                     'flattenImage': self.flattenImageCheckbox.isChecked(),
+                                    'mergeNestedDocuments': self.flattenNestedDocsCheckbox.isChecked(),
+                                    'nestedDocumentsLocation': self.nestedDocsLocationComboBox.currentData(),
                                     'exportReference': self.exportReferenceCheckbox.isChecked(),
                                     'exportFilterLayers': self.exportFilterLayersCheckBox.isChecked(),
                                     'exportInvisibleLayers': self.exportInvisibleLayersCheckBox.isChecked(),
                                     'cropToImageBounds': self.cropToImageBounds.isChecked(),
-                                    'width': self.rectWidthSpinBox.value(),
-                                    'height': self.rectHeightSpinBox.value(),
-                                    'resolution': self.resSpinBox.value() / 72.0,
                                 },
                                 {
                                     'author': self.authorEdit.text(),
@@ -310,28 +311,26 @@ class OCAExportDialog(QDialog):
         if directory != "":
             self.directoryTextField.setText(directory)
 
-    def _setResolution(self, index):
-        document = self.documentsList[index]
-        self.rectWidthSpinBox.setValue(document.width())
-        self.rectHeightSpinBox.setValue(document.height())
-        self.resSpinBox.setValue(document.resolution())
-
-    def _toggleCropSize(self):
-        cropToLayer = self.cropToImageBounds.isChecked()
-        self.rectWidthSpinBox.setDisabled(cropToLayer)
-        self.rectHeightSpinBox.setDisabled(cropToLayer)
-
     def _toggleFlatten(self):
         flatten = self.flattenImageCheckbox.isChecked()
+        self.flattenNestedDocsCheckbox.setDisabled(flatten)
         self.exportFilterLayersCheckBox.setDisabled(flatten)
         self.exportInvisibleLayersCheckBox.setDisabled(flatten)
         self.cropToImageBounds.setDisabled(flatten)
+        self._toggleFlattenNested()
 
         if flatten:
             self.exportFilterLayersCheckBox.setChecked(True)
+            self.flattenNestedDocsCheckbox.setChecked(True)
             self.exportInvisibleLayersCheckBox.setChecked(False)
             self.exportReferenceCheckbox.setChecked(False)
             self.cropToImageBounds.setChecked(False)
         else:
             self.exportFilterLayersCheckBox.setChecked(False)
             self.exportReferenceCheckbox.setChecked(True)
+            self.flattenNestedDocsCheckbox.setChecked(False)
+
+    def _toggleFlattenNested(self):
+        flatten = self.flattenImageCheckbox.isChecked()
+        flattenNested = self.flattenNestedDocsCheckbox.isChecked()
+        self.nestedDocsLocationComboBox.setEnabled(not flatten and not flattenNested)

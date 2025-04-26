@@ -20,8 +20,8 @@ Note that vector layers are not supported by *OCA* for Krita (yet).
 
 ### Dependencies
 
-- [OCA](https://github.com/Rainbox-dev/OCA) >= 1.1.1  
-Copy or symlink the *ocapy* module inside `src/OCA`
+- [OCA](https://github.com/Rainbox-dev/OCA) >= 1.3.0   
+Copy or symlink the `oca_core` and `oca_krita` modules inside `src/`
 
 ## Join the community
 

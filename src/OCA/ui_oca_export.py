@@ -307,7 +307,7 @@ class OCAExportDialog(QDialog):
         self.setEnabled(True)
 
     def export(self, document):
-
+        document.save()
         return oca.kDocument.export(document,
                                     os.path.join( self.directoryTextField.text(), self.ocaFolderTextField.text() ),
                                     {

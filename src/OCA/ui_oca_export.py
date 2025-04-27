@@ -38,7 +38,9 @@ from PyQt5.QtWidgets import ( # pylint: disable=no-name-in-module,import-error
     QTextEdit,
     QListWidgetItem,
     QListView,
-    QComboBox
+    QComboBox,
+    QInputDialog,
+    QSizePolicy
     )
 
 # oca_krita contains the actual OCA for Krita code,
@@ -63,28 +65,35 @@ class OCAExportDialog(QDialog):
         self.mainLayout.addWidget(self.tabWidget)
 
         self.optionsWidget = QWidget(self.tabWidget)
-        self.tabWidget.addTab(self.optionsWidget,"Export options")
+        self.tabWidget.addTab(self.optionsWidget,"Documents and location")
 
         self.formLayout = QFormLayout(self.optionsWidget)
         self.resSpinBoxLayout = QFormLayout()
-        self.documentLayout = QVBoxLayout()
+        self.documentsFormLayout = QVBoxLayout()
         self.directorySelectorLayout = QHBoxLayout()
         self.optionsLayout = QVBoxLayout()
         self.timeRangeLayout = QVBoxLayout()
 
-        self.refreshButton = QPushButton(i18n("Refresh")) # pylint: disable=undefined-variable
         self.widgetDocuments = QListWidget()
         self.widgetDocuments.setViewMode(QListView.IconMode)
         self.widgetDocuments.setIconSize(QSize(128,128))
         self.widgetDocuments.setGridSize(QSize(138,140))
         self.widgetDocuments.setMinimumHeight(150)
+        self.editDocumentButton = QPushButton(i18n("Rename document"))  # pylint: disable=undefined-variable
+        self.refreshButton = QPushButton(i18n("Refresh list")) # pylint: disable=undefined-variable
         self.directoryTextField = QLineEdit()
         self.directoryDialogButton = QPushButton(i18n("...")) # pylint: disable=undefined-variable
+        self.ocaFolderTextField = QLineEdit()
         self.nestedDocsLocationComboBox = QComboBox()
-        self.nestedDocsLocationComboBox.addItem(i18n("Collect in the new OCA folder"), userData='collect') # pylint: disable=undefined-variable
-        self.nestedDocsLocationComboBox.addItem(i18n("Next to original document"), userData='keep') # pylint: disable=undefined-variable
+        self.nestedDocsLocationComboBox.addItem(i18n("Export and collect in the new OCA folder"), userData='collect') # pylint: disable=undefined-variable
+        self.nestedDocsLocationComboBox.addItem(i18n("Export next to the original document"), userData='keep') # pylint: disable=undefined-variable
+        self.nestedDocsLocationComboBox.addItem(i18n("Flatten as a single paint layer"), userData='flatten') # pylint: disable=undefined-variable
+
+        self.exportOptionsWidget = QWidget(self.tabWidget)
+        self.tabWidget.addTab(self.exportOptionsWidget,"Export Options")
+        self.exportOptionsLayout = QFormLayout(self.exportOptionsWidget)
+
         self.flattenImageCheckbox = QCheckBox(i18n("Flatten image")) # pylint: disable=undefined-variable
-        self.flattenNestedDocsCheckbox = QCheckBox(i18n("Flatten nested documents")) # pylint: disable=undefined-variable
         self.exportReferenceCheckbox = QCheckBox(i18n("Export \"_reference_\" layers")) # pylint: disable=undefined-variable
         self.exportFilterLayersCheckBox = QCheckBox(i18n("Export filter layers")) # pylint: disable=undefined-variable
         self.exportInvisibleLayersCheckBox = QCheckBox(i18n("Export invisible layers")) # pylint: disable=undefined-variable
@@ -95,7 +104,6 @@ class OCAExportDialog(QDialog):
 
         self.metadataWidget = QWidget(self.tabWidget)
         self.tabWidget.addTab(self.metadataWidget,"Metadata")
-
         self.metadataLayout = QFormLayout(self.metadataWidget)
 
         now = datetime.datetime.now()
@@ -133,11 +141,12 @@ class OCAExportDialog(QDialog):
         self.directoryTextField.setReadOnly(True)
         self.directoryDialogButton.clicked.connect(self._selectDir)
         self.refreshButton.clicked.connect(self.refreshButtonClicked)
+        self.editDocumentButton.clicked.connect(self._editDocumentName)
         self.buttonBox.accepted.connect(self.confirmButton)
         self.buttonBox.rejected.connect(self.close)
         self.flattenImageCheckbox.stateChanged.connect(self._toggleFlatten)
-        self.flattenNestedDocsCheckbox.stateChanged.connect(self._toggleFlattenNested)
         self.settingsButton.clicked.connect(self.settingsButtonClicked)
+        self.widgetDocuments.itemDoubleClicked.connect(self._editDocumentName)
 
         self.setWindowModality(Qt.NonModal)
         self.widgetDocuments.setSizeAdjustPolicy(
@@ -151,16 +160,12 @@ class OCAExportDialog(QDialog):
         #self.formatsComboBox.addItem(i18n("PNG"))
         #self.formatsComboBox.addItem(i18n("EXR"))
 
-        self.documentLayout.addWidget(self.widgetDocuments)
-        self.documentLayout.addWidget(self.refreshButton)
-
         self.directorySelectorLayout.addWidget(self.directoryTextField)
         self.directorySelectorLayout.addWidget(self.directoryDialogButton)
 
         self.nestedDocsLocationComboBox.setCurrentIndex(0)
 
         self.optionsLayout.addWidget(self.flattenImageCheckbox)
-        self.optionsLayout.addWidget(self.flattenNestedDocsCheckbox)
         self.optionsLayout.addWidget(self.exportReferenceCheckbox)
         self.optionsLayout.addWidget(self.exportFilterLayersCheckBox)
         self.optionsLayout.addWidget(self.exportInvisibleLayersCheckBox)
@@ -170,13 +175,22 @@ class OCAExportDialog(QDialog):
         self.timeRangeLayout.addWidget(self.currentSelectionRadioButton)
         self.fullClipRadioButton.setChecked(True)
 
-        self.formLayout.addRow(i18n("Documents:"), self.documentLayout) # pylint: disable=undefined-variable
+        documentsButtonsWidget = QWidget()
+        documentsButtonsLayout = QHBoxLayout(documentsButtonsWidget)
+        documentsButtonsLayout.setContentsMargins(0,0,0,10)
+        documentsButtonsLayout.addWidget(self.editDocumentButton)
+        documentsButtonsLayout.addWidget(self.refreshButton)
+
+        self.formLayout.addRow(i18n("Documents:"), self.widgetDocuments) # pylint: disable=undefined-variable
+        self.formLayout.addWidget(documentsButtonsWidget)
         self.formLayout.addRow(i18n("Destination:"), self.directorySelectorLayout) # pylint: disable=undefined-variable
-        self.formLayout.addRow(i18n("Nested documents location:"), self.nestedDocsLocationComboBox) # pylint: disable=undefined-variable
-        self.formLayout.addRow(i18n("Export options:"), self.optionsLayout) # pylint: disable=undefined-variable
+        self.formLayout.addRow(i18n("OCA Folder name:"), self.ocaFolderTextField) # pylint: disable=undefined-variable
+        self.formLayout.addRow(i18n("Nested documents:"), self.nestedDocsLocationComboBox) # pylint: disable=undefined-variable
+
+        self.exportOptionsLayout.addRow(i18n("Export options:"), self.optionsLayout) # pylint: disable=undefined-variable
         #self.formLayout.addRow(
         #    i18n("Images extensions:"), self.formatsComboBox)
-        self.formLayout.addRow(i18n("Time range:"), self.timeRangeLayout) # pylint: disable=undefined-variable
+        self.exportOptionsLayout.addRow(i18n("Time range:"), self.timeRangeLayout) # pylint: disable=undefined-variable
 
         self.metadataLayout.addRow(i18n("Author:"), self.authorEdit) # pylint: disable=undefined-variable
         self.metadataLayout.addRow(i18n("Description:"), self.descriptionEdit) # pylint: disable=undefined-variable
@@ -217,23 +231,35 @@ class OCAExportDialog(QDialog):
         d.exec()
 
     def loadDocuments(self):
+        """Loads all documents from the Application,
+        And sets their document name if it is not set yet."""
         self.widgetDocuments.clear()
 
         self.documentsList = [
             document for document in self.kritaInstance.documents()
             if document.fileName()
         ]
+        if len(self.documentsList) == 0:
+            return
 
         activeDoc = Application.activeDocument() # pylint: disable=undefined-variable
 
         for document in self.documentsList:
+            if document.name() == "":
+                fName = document.fileName()
+                fName = os.path.basename(
+                    os.path.splitext(fName)[0]
+                )
+                document.setName(fName)
             item = QListWidgetItem (
                 QIcon(QPixmap.fromImage(document.thumbnail(128,128))),
-                document.fileName(),
+                document.name(),
                 self.widgetDocuments
                 )
+            item.setData(Qt.UserRole, document)
             if document == activeDoc:
                 item.setSelected(True)
+                self.widgetDocuments.setCurrentItem(item)
         
         # If the path is empty, set to the path of the active doc
         if self.directoryTextField.text() == "":
@@ -241,17 +267,21 @@ class OCAExportDialog(QDialog):
             self.directoryTextField.setText(
                 os.path.dirname(fileName)
             )
+        # If the OCA folder is empty, set to the path of the active doc
+        if self.ocaFolderTextField.text() == "":
+            fileName = activeDoc.fileName()
+            fileName = os.path.basename(
+                os.path.splitext(fileName)[0]
+            )
+            fileName += '.oca'
+            self.ocaFolderTextField.setText( fileName )
 
     def refreshButtonClicked(self):
         self.loadDocuments()
 
     def confirmButton(self):
-        selectedPaths = [
-            item.text() for item in self.widgetDocuments.selectedItems()]
         selectedDocuments = [
-            document for document in self.documentsList
-            for path in selectedPaths if path == document.fileName()
-        ]
+            item.data(Qt.UserRole) for item in self.widgetDocuments.selectedItems()]
 
         self.setEnabled(False)
 
@@ -278,24 +308,27 @@ class OCAExportDialog(QDialog):
 
     def export(self, document):
 
-        return oca.kDocument.export( document, self.directoryTextField.text(), {
-                                    'fullClip': self.fullClipRadioButton.isChecked(),
-                                    'flattenImage': self.flattenImageCheckbox.isChecked(),
-                                    'mergeNestedDocuments': self.flattenNestedDocsCheckbox.isChecked(),
-                                    'nestedDocumentsLocation': self.nestedDocsLocationComboBox.currentData(),
-                                    'exportReference': self.exportReferenceCheckbox.isChecked(),
-                                    'exportFilterLayers': self.exportFilterLayersCheckBox.isChecked(),
-                                    'exportInvisibleLayers': self.exportInvisibleLayersCheckBox.isChecked(),
-                                    'cropToImageBounds': self.cropToImageBounds.isChecked(),
-                                },
-                                {
-                                    'author': self.authorEdit.text(),
-                                    'copyright': self.copyrightEdit.text(),
-                                    'description': self.descriptionEdit.toPlainText(),
-                                    'license': self.licenseEdit.text(),
-                                    'licenseLong': self.licenseLongEdit.text(),
-                                    'licenseURL': self.licenseURLEdit.text(),
-                                } )
+        return oca.kDocument.export(document,
+                                    os.path.join( self.directoryTextField.text(), self.ocaFolderTextField.text() ),
+                                    {
+                                        'fullClip': self.fullClipRadioButton.isChecked(),
+                                        'flattenImage': self.flattenImageCheckbox.isChecked(),
+                                        'mergeNestedDocuments': self.nestedDocsLocationComboBox.currentData() == 'flatten',
+                                        'nestedDocumentsLocation': self.nestedDocsLocationComboBox.currentData(),
+                                        'exportReference': self.exportReferenceCheckbox.isChecked(),
+                                        'exportFilterLayers': self.exportFilterLayersCheckBox.isChecked(),
+                                        'exportInvisibleLayers': self.exportInvisibleLayersCheckBox.isChecked(),
+                                        'cropToImageBounds': self.cropToImageBounds.isChecked(),
+                                    },
+                                    {
+                                        'author': self.authorEdit.text(),
+                                        'copyright': self.copyrightEdit.text(),
+                                        'description': self.descriptionEdit.toPlainText(),
+                                        'license': self.licenseEdit.text(),
+                                        'licenseLong': self.licenseLongEdit.text(),
+                                        'licenseURL': self.licenseURLEdit.text(),
+                                    }
+                                    )
 
     def _selectDir(self):
         current = self.directoryTextField.text()
@@ -313,24 +346,34 @@ class OCAExportDialog(QDialog):
 
     def _toggleFlatten(self):
         flatten = self.flattenImageCheckbox.isChecked()
-        self.flattenNestedDocsCheckbox.setDisabled(flatten)
+        self.nestedDocsLocationComboBox.setDisabled(flatten)
         self.exportFilterLayersCheckBox.setDisabled(flatten)
         self.exportInvisibleLayersCheckBox.setDisabled(flatten)
         self.cropToImageBounds.setDisabled(flatten)
-        self._toggleFlattenNested()
 
         if flatten:
             self.exportFilterLayersCheckBox.setChecked(True)
-            self.flattenNestedDocsCheckbox.setChecked(True)
             self.exportInvisibleLayersCheckBox.setChecked(False)
             self.exportReferenceCheckbox.setChecked(False)
             self.cropToImageBounds.setChecked(False)
         else:
             self.exportFilterLayersCheckBox.setChecked(False)
             self.exportReferenceCheckbox.setChecked(True)
-            self.flattenNestedDocsCheckbox.setChecked(False)
 
-    def _toggleFlattenNested(self):
-        flatten = self.flattenImageCheckbox.isChecked()
-        flattenNested = self.flattenNestedDocsCheckbox.isChecked()
-        self.nestedDocsLocationComboBox.setEnabled(not flatten and not flattenNested)
+    def _editDocumentName(self, item=None):
+        if not item:
+            item = self.widgetDocuments.currentItem()
+        if not item:
+            return
+        kDoc = item.data(Qt.UserRole)
+        newName, ok = QInputDialog.getText(
+            self, # pylint: disable=undefined-variable
+            i18n("Document name"), # pylint: disable=undefined-variable
+            i18n("Set new document name:"), # pylint: disable=undefined-variable
+            text=kDoc.name()
+            )
+        if ok and newName:
+            kDoc.setName( newName )
+            item.setText( newName )
+        # Keep the item selected
+        item.setSelected(True)

@@ -2,6 +2,7 @@
     "title": "OCA for Krita",
     "description": "Export Animation keyframes from Krita to OCA, an open standard easy to use with any app.",
     "readme": "https://codeberg.org/OCA/OCA-Krita/raw/branch/rxlaboratorio-manifest-v2/HOME.md",
+    "tags": ["krita", "oca", "animation", "io"],
     "version": "1.4.0",
     "date": "2024-04-01",
     "prerelease-version": "",

@@ -1,5 +1,18 @@
 {
     "title": "OCA for Krita",
+    "description": "Export Animation keyframes from Krita to OCA, an open standard easy to use with any app.",
+    "readme": "https://codeberg.org/OCA/OCA-Krita/raw/branch/rxlaboratorio-manifest-v2/HOME.md",
+    "version": "1.4.0",
+    "date": "2024-04-01",
+    "prerelease-version": "",
+    "prerelease-date": "",
+    "changelog": "https://codeberg.org/OCA/OCA-Krita/releases",
+    "source": "https://codeberg.org/OCA/OCA-Krita",
+    "archive": "https://codeberg.org/OCA/OCA-Krita/releases",
+    "license": {
+        "title": "GNU GPL-v3",
+        "url": "https://rxlaboratorio.org/license-gpl/"
+    },
     "hosts": [
         {
             "name": "krita",
@@ -8,31 +21,38 @@
     ],
     "os": [
         {
-            "name": "mac",
-            "title": "macOS"
-        },
-        {
             "name": "win",
             "title": "Windows"
+        },
+        {
+            "name": "mac",
+            "title": "Mac OS"
         },
         {
             "name": "linux",
             "title": "Linux"
         }
     ],
-    "userGuide": "http://oca-krita.rxlab.guide",
-    "website": "https://rxlaboratory.org/tools/oca-for-krita/",
-    "description": "Export Animation keyframes from Krita to OCA, a JSON + PNG/EXR/SVG format.",
     "assets": [
         {
-            "nameRegEx": "OCA-Krita_.+\\.zip",
-            "name": "OCA for Krita",
+            "url": "https://codeberg.org/OCA/OCA-Krita/releases/download/v%version%/OCA-Krita_%version%.zip",
+            "title": "OCA for Krita",
+            "name": "oca-krita",
             "description": "The Krita Plug-in to export documents to the OCA format.",
-            "hosts": [ {"name": "krita", "title": "Krita"} ],
-            "os": [ {"name": "mac", "title": "macOS"}, {"name": "win", "title": "Windows"}, {"name": "linux", "title": "Linux"} ],
-            "urls": [
-                {"title": "Documentation", "url": "http://oca-krita.rxlab.guide"}
-            ]
+            "hosts": [{ "name": "krita", "title": "Krita" }],
+            "os": [ {"name": "all", "title": "All"} ],
+            "links": [{"title": "Documentation", "url": "http://oca-krita.rxlab.guide"}],
+            "prerelease": false
+        }
+    ],
+    "links":[
+        {"title": "User Guide", "url": "http://oca-krita.rxlab.guide"}
+    ],
+    "authors": [
+        {
+            "name": "Duduf",
+            "url": "https://duduf.com"
         }
     ]
 }
+
